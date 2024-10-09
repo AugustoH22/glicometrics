@@ -9,6 +9,7 @@ class RegistrosScreen extends StatefulWidget {
   const RegistrosScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _RegistrosScreenState createState() => _RegistrosScreenState();
 }
 
@@ -62,13 +63,13 @@ class _RegistrosScreenState extends State<RegistrosScreen> with AutomaticKeepAli
           mainAxisAlignment: MainAxisAlignment.center, // Centraliza verticalmente os botões
           crossAxisAlignment: CrossAxisAlignment.stretch, // Garante que todos os botões tenham o mesmo tamanho na largura
           children: [
-            _buildButton('Registrar Refeição', Icons.restaurant, Colors.orange, context, RefeicaoScreen()),
+            _buildButton('Registrar Refeição', Icons.restaurant, Colors.orange, context, const RefeicaoScreen()),
             const SizedBox(height: 20), // Espaço entre os botões
-            _buildButton('Registrar Glicemia', Icons.bloodtype, Colors.red, context, GlicemiaScreen()),
+            _buildButton('Registrar Glicemia', Icons.bloodtype, Colors.red, context, const GlicemiaScreen()),
             const SizedBox(height: 20), // Espaço entre os botões
-            _buildButton('Registrar Hipoglicemia', Icons.warning, Colors.blue, context, HipoglicemiaScreen()),
+            _buildButton('Registrar Hipoglicemia', Icons.warning, Colors.blue, context, const HipoglicemiaScreen()),
             const SizedBox(height: 20), // Espaço entre os botões
-            _buildButton('Dados de Saúde', Icons.health_and_safety, Colors.green, context, SaudeScreen()),
+            _buildButton('Dados de Saúde', Icons.health_and_safety, Colors.green, context, const SaudeScreen()),
           ],
         ),
       ),

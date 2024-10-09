@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class HipoglicemiaScreen extends StatelessWidget {
+  const HipoglicemiaScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -10,14 +10,15 @@ class InformacaoRefeicaoScreen extends StatefulWidget {
   final bool? isNoGlicemia;
   final String? selectedMeal;
 
-  InformacaoRefeicaoScreen(
-      {this.selectedOption,
+  const InformacaoRefeicaoScreen(
+      {super.key, this.selectedOption,
       this.selectedDate,
       this.selectedTime,
       this.glicemiaValue,
       this.isNoGlicemia,
       this.selectedMeal});
   @override
+  // ignore: library_private_types_in_public_api
   _InformacaoRefeicaoScreenState createState() =>
       _InformacaoRefeicaoScreenState();
 }
@@ -140,7 +141,7 @@ class _InformacaoRefeicaoScreenState extends State<InformacaoRefeicaoScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => BuscaAlimentoScreen(),
+                                    builder: (context) => const BuscaAlimentoScreen(),
                                   ),
                                 ).then((visited) {
                                   if (visited == true) {
@@ -304,13 +305,13 @@ class _InformacaoRefeicaoScreenState extends State<InformacaoRefeicaoScreen> {
                           }
                         });
                       }
-                    : null, // Desabilita o botão se os campos não estiverem preenchidos
-                child: const Text('Próximo'),
+                    : null,
                 style: ElevatedButton.styleFrom(
                   disabledForegroundColor: Colors.grey.withOpacity(0.38),
                   disabledBackgroundColor: Colors.grey
                       .withOpacity(0.12), // Cor do botão quando desabilitado
-                ),
+                ), // Desabilita o botão se os campos não estiverem preenchidos
+                child: const Text('Próximo'),
               ),
             ),
           ),

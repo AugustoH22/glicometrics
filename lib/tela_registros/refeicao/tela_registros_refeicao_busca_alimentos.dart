@@ -11,8 +11,8 @@ class BuscaAlimentoScreen extends StatefulWidget {
   final bool? isNoGlicemia;
   final String? selectedMeal;
 
-  BuscaAlimentoScreen(
-      {this.selectedOption,
+  const BuscaAlimentoScreen(
+      {super.key, this.selectedOption,
       this.selectedDate,
       this.selectedTime,
       this.glicemiaValue,
@@ -20,6 +20,7 @@ class BuscaAlimentoScreen extends StatefulWidget {
       this.selectedMeal});
 
   @override
+  // ignore: library_private_types_in_public_api
   _BuscaAlimentoScreenState createState() => _BuscaAlimentoScreenState();
 }
 

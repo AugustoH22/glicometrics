@@ -12,8 +12,8 @@ class RevisaoAlimentosScreen extends StatefulWidget {
   final bool? isNoGlicemia;
   final String? selectedMeal;
 
-  RevisaoAlimentosScreen(
-      {this.selectedOption,
+  const RevisaoAlimentosScreen(
+      {super.key, this.selectedOption,
       this.selectedDate,
       this.selectedTime,
       this.glicemiaValue,
@@ -22,6 +22,7 @@ class RevisaoAlimentosScreen extends StatefulWidget {
       required this.selectedItems});
 
   @override
+  // ignore: library_private_types_in_public_api
   _RevisaoAlimentosScreenState createState() => _RevisaoAlimentosScreenState();
 }
 
@@ -50,7 +51,7 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => BuscaAlimentoScreen(),
+                builder: (context) => const BuscaAlimentoScreen(),
               ),
             );
           },
@@ -166,7 +167,7 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
             ),
             const SizedBox(height: 10),
             // Expanda a ListView dentro de um Container com altura definida
-            Container(
+            SizedBox(
               height: 200, // Defina a altura da ListView
               child: ListView.builder(
                 itemCount: widget.selectedItems.length,
@@ -240,12 +241,12 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
                       });
                     }
                   : null,
-              child: const Text('Salvar'),
               style: ElevatedButton.styleFrom(
                 disabledForegroundColor: Colors.grey.withOpacity(0.38),
                 disabledBackgroundColor: Colors.grey
                     .withOpacity(0.12), // Cor do botão quando desabilitado
               ),
+              child: const Text('Salvar'),
             ),
           ],
         ),

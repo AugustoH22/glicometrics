@@ -11,6 +11,7 @@ class RefeicaoScreen extends StatefulWidget {
   const RefeicaoScreen({super.key, this.selectedDate, this.selectedTime, this.selectedOption});
 
   @override
+  // ignore: library_private_types_in_public_api
   _RefeicaoScreenState createState() => _RefeicaoScreenState();
 }
 
