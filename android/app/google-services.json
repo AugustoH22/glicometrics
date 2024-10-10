@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "833748789546",
+    "project_id": "glicometrics",
+    "storage_bucket": "glicometrics.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:833748789546:android:d20d931e00eb7e7bf25653",
+        "android_client_info": {
+          "package_name": "com.augusto.glicometrics"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMI7EVs8ZBIkOQqIdT7XdlcJCyQ8Ik520"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:833748789546:android:b39dc9ac0377e45cf25653",
+        "android_client_info": {
+          "package_name": "com.example.main"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMI7EVs8ZBIkOQqIdT7XdlcJCyQ8Ik520"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

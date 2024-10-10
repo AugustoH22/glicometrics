@@ -35,7 +35,7 @@ class _RegistrosScreenState extends State<RegistrosScreen>
         ),// Sem sombra
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications),
+            icon: const Icon(Icons.notifications),
             onPressed: () {
               // Ação para notificações
             },

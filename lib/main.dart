@@ -3,8 +3,14 @@ import 'package:main/tela_conta/tela_conta.dart';
 import 'package:main/tela_home/tela_home.dart';
 import 'package:main/tela_receita/tela_receita.dart';
 import 'package:main/tela_registros/tela_registros.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const GlicoMetricsApp());
 }
 
@@ -13,12 +19,8 @@ class GlicoMetricsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'GlicoMetrics',
-      theme: ThemeData(
-        primarySwatch: Colors.red,
-      ),
-      home: const MainScreen(),
+    return const MaterialApp(
+      home: MainScreen(),
     );
   }
 }
@@ -101,19 +103,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey, 
+        unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ), // Add closing parenthesis here
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
