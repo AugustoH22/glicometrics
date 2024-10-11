@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:main/tela_conta/tela_conta.dart';
 import 'package:main/tela_home/tela_home.dart';
@@ -11,8 +12,11 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   runApp(const GlicoMetricsApp());
 }
+
+
 
 class GlicoMetricsApp extends StatelessWidget {
   const GlicoMetricsApp({super.key});

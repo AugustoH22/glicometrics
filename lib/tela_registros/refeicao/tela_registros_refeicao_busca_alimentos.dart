@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:main/tela_registros/refeicao/tela_registros_refeicao.dart';
-import 'package:main/tela_registros/refeicao/tela_registros_refeicao_informacao.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:main/tela_registros/refeicao/tela_registros_refeicao_revisa_alimentos.dart';
 
 class BuscaAlimentoScreen extends StatefulWidget {
@@ -12,7 +11,8 @@ class BuscaAlimentoScreen extends StatefulWidget {
   final String? selectedMeal;
 
   const BuscaAlimentoScreen(
-      {super.key, this.selectedOption,
+      {super.key,
+      this.selectedOption,
       this.selectedDate,
       this.selectedTime,
       this.glicemiaValue,
@@ -20,19 +20,91 @@ class BuscaAlimentoScreen extends StatefulWidget {
       this.selectedMeal});
 
   @override
-  // ignore: library_private_types_in_public_api
   _BuscaAlimentoScreenState createState() => _BuscaAlimentoScreenState();
 }
 
 class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
-  List<String> recentSearches = [
-    'Arroz',
-    'Feijão',
-    'Frango'
-  ]; // Exemplo de lista de buscas recentes
+  List<String> recentSearches = ['Arroz', 'Feijão', 'Frango']; // Lista de buscas recentes (inicial)
+  List<dynamic> searchResults = []; // Lista de resultados da busca
+  bool isLoading = false; // Indicador de carregamento
   int quantity = 1; // Quantidade padrão para o popup
-  bool momentoScreenVisited = true;
-  bool informacaoScreenVisited = true;
+
+  // Função para processar a query (ignora maiúsculas/minúsculas e separa as palavras)
+  List<String> processQuery(String query) {
+    return query.toLowerCase().split(' ').where((word) => word.isNotEmpty).toList();
+  }
+
+  // Função para buscar alimentos do Firestore
+  Future<void> _searchAlimentos(String query) async {
+    if (query.isEmpty) {
+      setState(() {
+        searchResults = [];
+      });
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      // Processar a query para separar palavras relevantes
+      List<String> processedQuery = processQuery(query);
+
+      // Fazer a busca no Firestore
+      QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('alimentos').get();
+
+      // Listas para separar resultados exatos e parciais
+      List<dynamic> resultadosExatos = [];
+      List<dynamic> resultadosParciais = [];
+
+      // Filtrar os resultados no cliente com base nas palavras da query
+      for (var doc in snapshot.docs) {
+        String nomeAlimento = doc['nome'].toLowerCase();
+
+        // Verificar se o nome corresponde exatamente à query
+        if (nomeAlimento == query.toLowerCase()) {
+          resultadosExatos.add(doc);
+        } else if (processedQuery.every((palavra) => nomeAlimento.contains(palavra))) {
+          // Se não for exato, verificar se contém todas as palavras da query
+          resultadosParciais.add(doc);
+        }
+      }
+
+      // Unir os resultados exatos com os parciais, dando prioridade aos exatos
+      List<dynamic> resultadosFinais = resultadosExatos + resultadosParciais;
+
+      setState(() {
+        searchResults = resultadosFinais;
+      });
+    } catch (error) {
+      print('Erro ao buscar alimentos: $error');
+      setState(() {
+        searchResults = [];
+      });
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Erro'),
+            content: const Text('Ocorreu um erro ao buscar os alimentos. Tente novamente mais tarde.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   // Função para mostrar o popup de detalhes do alimento
   void _showFoodPopup(String food) {
@@ -67,8 +139,7 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
                       });
                     },
                   ),
-                  Text(quantity.toString(),
-                      style: const TextStyle(fontSize: 18)),
+                  Text(quantity.toString(), style: const TextStyle(fontSize: 18)),
                   IconButton(
                     icon: const Icon(Icons.add),
                     onPressed: () {
@@ -126,27 +197,14 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => InformacaoRefeicaoScreen(
-                  glicemiaValue: widget.glicemiaValue,
-                  isNoGlicemia: widget.isNoGlicemia,
-                  selectedMeal: widget.selectedMeal,
-                  selectedDate: widget.selectedDate,
-                  selectedTime: widget.selectedTime,
-                  selectedOption: widget.selectedOption,
-                ),
-              ),
-            ); // Voltar para a tela anterior
+            Navigator.pop(context);
           },
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
-              Navigator.of(context).popUntil(
-                  (route) => route.isFirst); // Voltar para a tela de registros
+              Navigator.of(context).popUntil((route) => route.isFirst); // Voltar para a tela de registros
             },
           ),
         ],
@@ -157,94 +215,6 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
-            // Row com opções de navegação no subtítulo
-            Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Tela "Momento", só habilitada após clicar no botão "Próximo" de telas anteriores
-                  GestureDetector(
-                    onTap: momentoScreenVisited
-                        ? () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => RefeicaoScreen(
-                                  selectedDate: widget.selectedDate,
-                                  selectedTime: widget.selectedTime,
-                                  selectedOption: widget.selectedOption,
-                                ),
-                              ),
-                            );
-                          }
-                        : null, // Desabilita o clique se a tela não foi visitada
-                    child: const Row(
-                      children: [
-                        Icon(Icons.access_time, color: Colors.grey),
-                        SizedBox(width: 4),
-                        Text(
-                          'Momento >',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  // Tela "Informação", só habilitada se a tela "Momento" foi visitada
-                  GestureDetector(
-                    onTap: informacaoScreenVisited
-                        ? () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => InformacaoRefeicaoScreen(
-                                  glicemiaValue: widget.glicemiaValue,
-                                  isNoGlicemia: widget.isNoGlicemia,
-                                  selectedMeal: widget.selectedMeal,
-                                  selectedDate: widget.selectedDate,
-                                  selectedTime: widget.selectedTime,
-                                  selectedOption: widget.selectedOption,
-                                ),
-                              ),
-                            );
-                          }
-                        : null, // Desabilita o clique se a tela não foi visitada
-                    child: const Row(
-                      children: [
-                        Icon(Icons.info, color: Colors.grey),
-                        SizedBox(width: 4),
-                        Text(
-                          'Informação >',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  // Tela "Refeição", sempre habilitada porque estamos nessa tela
-                  GestureDetector(
-                    onTap: () {},
-                    child: const Row(
-                      children: [
-                        Icon(Icons.restaurant, color: Colors.blue),
-                        SizedBox(width: 4),
-                        Text(
-                          'Refeição >',
-                          style: TextStyle(fontSize: 16, color: Colors.blue),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
             // Campo de busca
             TextField(
               decoration: const InputDecoration(
@@ -253,27 +223,26 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
                 prefixIcon: Icon(Icons.search),
               ),
               onChanged: (value) {
-                // Lógica de busca
+                _searchAlimentos(value); // Chama a função de busca desde a primeira letra
               },
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Buscas recentes',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const SizedBox(height: 10),
-            // Lista de buscas recentes
-            Expanded(
-              child: ListView.builder(
-                itemCount: recentSearches.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(recentSearches[index]),
-                    onTap: () => _showFoodPopup(recentSearches[index]),
-                  );
-                },
-              ),
-            ),
+            isLoading
+                ? const CircularProgressIndicator() // Indicador de carregamento
+                : Expanded(
+                    child: searchResults.isNotEmpty
+                        ? ListView.builder(
+                            itemCount: searchResults.length,
+                            itemBuilder: (context, index) {
+                              final alimento = searchResults[index];
+                              return ListTile(
+                                title: Text(alimento['nome']),
+                                onTap: () => _showFoodPopup(alimento['nome']),
+                              );
+                            },
+                          )
+                        : const Text('Nenhum alimento encontrado'),
+                  ),
           ],
         ),
       ),
