@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:main/tela_registros/refeicao/tela_registros_refeicao_revisa_alimentos.dart';
@@ -20,6 +21,7 @@ class BuscaAlimentoScreen extends StatefulWidget {
       this.selectedMeal});
 
   @override
+  // ignore: library_private_types_in_public_api
   _BuscaAlimentoScreenState createState() => _BuscaAlimentoScreenState();
 }
 
@@ -78,11 +80,14 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
         searchResults = resultadosFinais;
       });
     } catch (error) {
-      print('Erro ao buscar alimentos: $error');
+      if (kDebugMode) {
+        print('Erro ao buscar alimentos: $error');
+      }
       setState(() {
         searchResults = [];
       });
       showDialog(
+        // ignore: use_build_context_synchronously
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
