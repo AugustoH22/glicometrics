@@ -58,6 +58,8 @@ class _GlicemiaScreenState extends State<GlicemiaScreen> {
 
   bool _isNextButtonEnabled() {
     if (selectedOption == "AGORA") {
+      selectedDate = DateTime.now();;
+      selectedTime = TimeOfDay.now();
       return true;
     } else if (selectedOption == "Passado" &&
         selectedDate != null &&

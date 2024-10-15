@@ -5,7 +5,7 @@ import 'package:main/tela_home/tela_home.dart';
 import 'package:main/tela_receita/tela_receita.dart';
 import 'package:main/tela_registros/tela_registros.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase/firebase_options.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

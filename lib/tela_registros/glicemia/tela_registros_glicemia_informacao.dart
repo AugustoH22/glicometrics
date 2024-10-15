@@ -1,5 +1,7 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
+import 'package:main/firebase/firestore_service.dart';
+
 
 class InformacaoScreen extends StatefulWidget {
   final DateTime? selectedDate;
@@ -8,16 +10,41 @@ class InformacaoScreen extends StatefulWidget {
   const InformacaoScreen({super.key, this.selectedDate, this.selectedTime});
 
   @override
-  // ignore: library_private_types_in_public_api
   _InformacaoScreenState createState() => _InformacaoScreenState();
 }
 
 class _InformacaoScreenState extends State<InformacaoScreen> {
+  final FirestoreService _firestoreService = FirestoreService();
+  
   String? glicemiaType; // Para armazenar o tipo de glicemia selecionado
   String glicemiaValue = ""; // Para armazenar o valor de glicemia
 
   bool _isSaveButtonEnabled() {
     return glicemiaType != null && glicemiaValue.isNotEmpty;
+  }
+
+  Future<void> _saveGlicemiaData() async {
+    if (widget.selectedDate != null && widget.selectedTime != null) {
+      await _firestoreService.salvarGlicemia(
+        data: widget.selectedDate!,
+        hora: widget.selectedTime!,
+        tipo: glicemiaType!,
+        valorGlicemia: glicemiaValue,
+      );
+      
+      // Exibir mensagem de sucesso
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Dados de glicemia salvos com sucesso!')),
+      );
+
+      // Voltar para a tela inicial
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } else {
+      // Exibir mensagem de erro se a data ou hora não estiverem selecionadas
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Selecione a data e a hora da glicemia.')),
+      );
+    }
   }
 
   @override
@@ -28,7 +55,7 @@ class _InformacaoScreenState extends State<InformacaoScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // Voltar para a tela de "Momento"
+            Navigator.pop(context); // Voltar para a tela anterior
           },
         ),
         actions: [
@@ -46,6 +73,7 @@ class _InformacaoScreenState extends State<InformacaoScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
+            // Navegação
             Center(
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -88,7 +116,7 @@ class _InformacaoScreenState extends State<InformacaoScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            // Container para selecionar o tipo da glicemia
+            // Seleção de tipo de glicemia
             Center(
               child: Container(
                 padding: const EdgeInsets.all(16.0),
@@ -125,7 +153,7 @@ class _InformacaoScreenState extends State<InformacaoScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            // Container para informar o valor da glicemia
+            // Campo para o valor da glicemia
             Center(
               child: Container(
                 padding: const EdgeInsets.all(16.0),
@@ -158,20 +186,16 @@ class _InformacaoScreenState extends State<InformacaoScreen> {
               ),
             ),
             const Spacer(),
-            // Botão "Salvar" que só habilita se todos os campos forem preenchidos
+            // Botão "Salvar"
             Center(
               child: ElevatedButton(
                 onPressed: _isSaveButtonEnabled()
-                    ? () {
-                        // Salvar os dados (lógica será adicionada depois)
-                        // Voltar para a tela de registros
-                        Navigator.of(context).popUntil((route) => route.isFirst);
-                      }
+                    ? _saveGlicemiaData // Chama a função para salvar os dados no Firestore
                     : null,
                 style: ElevatedButton.styleFrom(
                   disabledForegroundColor: Colors.grey.withOpacity(0.38),
-                  disabledBackgroundColor: Colors.grey.withOpacity(0.12), // Cor do botão quando desabilitado
-                ), // Desabilita o botão se os campos não estiverem preenchidos
+                  disabledBackgroundColor: Colors.grey.withOpacity(0.12), // Cor do botão desabilitado
+                ),
                 child: const Text('Salvar'),
               ),
             ),
