@@ -8,7 +8,8 @@ class RefeicaoScreen extends StatefulWidget {
   final TimeOfDay? selectedTime;
   final String? selectedOption;
 
-  const RefeicaoScreen({super.key, this.selectedDate, this.selectedTime, this.selectedOption});
+  const RefeicaoScreen(
+      {super.key, this.selectedDate, this.selectedTime, this.selectedOption});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -19,10 +20,6 @@ class _RefeicaoScreenState extends State<RefeicaoScreen> {
   String? selectedOption = ""; // Variável para armazenar a opção selecionada
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
-
-  // Variáveis para controlar se as telas foram visitadas
-  bool infoScreenVisited = false;
-  bool refeicaoScreenVisited = false;
 
   @override
   void initState() {
@@ -125,16 +122,13 @@ class _RefeicaoScreenState extends State<RefeicaoScreen> {
                     onTap: () {},
                     child: Row(
                       children: [
-                        Icon(Icons.info,
-                            color:
-                                infoScreenVisited ? Colors.blue : Colors.grey),
+                        Icon(Icons.info, color: Colors.grey),
                         const SizedBox(width: 4),
                         Text(
                           'Informação >',
                           style: TextStyle(
                             fontSize: 16,
-                            color:
-                                infoScreenVisited ? Colors.blue : Colors.grey,
+                            color: Colors.grey,
                           ),
                         ),
                       ],
@@ -146,18 +140,13 @@ class _RefeicaoScreenState extends State<RefeicaoScreen> {
                     onTap: () {},
                     child: Row(
                       children: [
-                        Icon(Icons.restaurant,
-                            color: refeicaoScreenVisited
-                                ? Colors.blue
-                                : Colors.grey),
+                        Icon(Icons.restaurant, color: Colors.grey),
                         const SizedBox(width: 4),
                         Text(
                           'Refeição >',
                           style: TextStyle(
                             fontSize: 16,
-                            color: refeicaoScreenVisited
-                                ? Colors.blue
-                                : Colors.grey,
+                            color: Colors.grey,
                           ),
                         ),
                       ],
@@ -247,10 +236,6 @@ class _RefeicaoScreenState extends State<RefeicaoScreen> {
               child: ElevatedButton(
                 onPressed: _isNextButtonEnabled()
                     ? () {
-                        setState(() {
-                          // Quando o botão for clicado, habilitar a próxima tela
-                          infoScreenVisited = true;
-                        });
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -311,8 +296,8 @@ class _RefeicaoScreenState extends State<RefeicaoScreen> {
                   onTap: () {
                     setState(() {
                       selectedOption = "AGORA";
-                      selectedDate = null;
-                      selectedTime = null;
+                      selectedDate = DateTime.now(); // Data atual
+                      selectedTime = TimeOfDay.now();
                     });
                   },
                   child: Container(

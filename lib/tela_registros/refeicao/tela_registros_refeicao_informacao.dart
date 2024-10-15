@@ -11,7 +11,8 @@ class InformacaoRefeicaoScreen extends StatefulWidget {
   final String? selectedMeal;
 
   const InformacaoRefeicaoScreen(
-      {super.key, this.selectedOption,
+      {super.key,
+      this.selectedOption,
       this.selectedDate,
       this.selectedTime,
       this.glicemiaValue,
@@ -26,6 +27,7 @@ class InformacaoRefeicaoScreen extends StatefulWidget {
 class _InformacaoRefeicaoScreenState extends State<InformacaoRefeicaoScreen> {
   String? selectedMeal; // Para armazenar a refeição selecionada
   String? glicemiaValue = ""; // Para armazenar o valor da glicemia
+  List<Map<String, dynamic>>? selectedItems = [];
   bool? isNoGlicemia =
       false; // Para armazenar o estado do switch "Sem glicemia"
 
@@ -136,22 +138,8 @@ class _InformacaoRefeicaoScreenState extends State<InformacaoRefeicaoScreen> {
                       const SizedBox(width: 4),
                       // Tela "Refeição", só habilitada se o botão "Próximo" foi clicado ao menos uma vez
                       GestureDetector(
-                        onTap: refeicaoScreenVisited
-                            ? () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const BuscaAlimentoScreen(),
-                                  ),
-                                ).then((visited) {
-                                  if (visited == true) {
-                                    setState(() {
-                                      refeicaoScreenVisited = true;
-                                    });
-                                  }
-                                });
-                              }
-                            : null, // Desabilita o clique se a tela não foi visitada
+                        onTap: () {},
+                        // Desabilita o clique se a tela não foi visitada
                         child: Row(
                           children: [
                             Icon(Icons.restaurant,
@@ -289,12 +277,13 @@ class _InformacaoRefeicaoScreenState extends State<InformacaoRefeicaoScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => BuscaAlimentoScreen(
+                              selectedOption: widget.selectedOption, // Add the missing positional argument
                               selectedDate: widget.selectedDate,
                               selectedTime: widget.selectedTime,
-                              selectedOption: widget.selectedOption,
                               glicemiaValue: glicemiaValue,
                               isNoGlicemia: isNoGlicemia,
                               selectedMeal: selectedMeal,
+                              selectedItems: selectedItems,
                             ),
                           ),
                         ).then((visited) {

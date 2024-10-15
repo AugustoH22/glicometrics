@@ -1,6 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:main/firebase/firestore_service.dart';
 import 'package:main/tela_registros/refeicao/tela_registros_refeicao_revisa_alimentos.dart';
 
 class BuscaAlimentoScreen extends StatefulWidget {
@@ -10,6 +9,7 @@ class BuscaAlimentoScreen extends StatefulWidget {
   final String? glicemiaValue;
   final bool? isNoGlicemia;
   final String? selectedMeal;
+  final List<Map<String, dynamic>>? selectedItems;
 
   const BuscaAlimentoScreen(
       {super.key,
@@ -18,7 +18,8 @@ class BuscaAlimentoScreen extends StatefulWidget {
       this.selectedTime,
       this.glicemiaValue,
       this.isNoGlicemia,
-      this.selectedMeal});
+      this.selectedMeal,
+      required this.selectedItems});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -26,17 +27,41 @@ class BuscaAlimentoScreen extends StatefulWidget {
 }
 
 class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
-  List<String> recentSearches = ['Arroz', 'Feijão', 'Frango']; // Lista de buscas recentes (inicial)
-  List<dynamic> searchResults = []; // Lista de resultados da busca
-  bool isLoading = false; // Indicador de carregamento
-  int quantity = 1; // Quantidade padrão para o popup
+  List<Map<String, dynamic>> recentSearches = [];
+  List<Map<String, dynamic>> searchResults = [];
+  List<Map<String, dynamic>> favoriteMeals = [];
+  bool isLoading = false;
+  int quantity = 1;
+  List<Map<String, dynamic>>? selectedItems;
 
-  // Função para processar a query (ignora maiúsculas/minúsculas e separa as palavras)
-  List<String> processQuery(String query) {
-    return query.toLowerCase().split(' ').where((word) => word.isNotEmpty).toList();
+  final FirestoreService _firestoreService = FirestoreService();
+
+  @override
+  void initState() {
+    super.initState();
+    selectedItems = widget.selectedItems;
+    _loadData();
   }
 
-  // Função para buscar alimentos do Firestore
+  Future<void> _loadData() async {
+    await _fetchRecentSearches();
+    await _fetchFavoriteMeals();
+  }
+
+  Future<void> _fetchRecentSearches() async {
+    List<Map<String, dynamic>> results = await _firestoreService.fetchRecentSearches();
+    setState(() {
+      recentSearches = results;
+    });
+  }
+
+  Future<void> _fetchFavoriteMeals() async {
+    List<Map<String, dynamic>> meals = await _firestoreService.fetchFavoriteMeals(widget.selectedMeal);
+    setState(() {
+      favoriteMeals = meals;
+    });
+  }
+
   Future<void> _searchAlimentos(String query) async {
     if (query.isEmpty) {
       setState(() {
@@ -49,149 +74,132 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
       isLoading = true;
     });
 
-    try {
-      // Processar a query para separar palavras relevantes
-      List<String> processedQuery = processQuery(query);
+    List<Map<String, dynamic>> results = await _firestoreService.searchAlimentos(query);
 
-      // Fazer a busca no Firestore
-      QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('alimentos').get();
-
-      // Listas para separar resultados exatos e parciais
-      List<dynamic> resultadosExatos = [];
-      List<dynamic> resultadosParciais = [];
-
-      // Filtrar os resultados no cliente com base nas palavras da query
-      for (var doc in snapshot.docs) {
-        String nomeAlimento = doc['nome'].toLowerCase();
-
-        // Verificar se o nome corresponde exatamente à query
-        if (nomeAlimento == query.toLowerCase()) {
-          resultadosExatos.add(doc);
-        } else if (processedQuery.every((palavra) => nomeAlimento.contains(palavra))) {
-          // Se não for exato, verificar se contém todas as palavras da query
-          resultadosParciais.add(doc);
-        }
-      }
-
-      // Unir os resultados exatos com os parciais, dando prioridade aos exatos
-      List<dynamic> resultadosFinais = resultadosExatos + resultadosParciais;
-
-      setState(() {
-        searchResults = resultadosFinais;
-      });
-    } catch (error) {
-      if (kDebugMode) {
-        print('Erro ao buscar alimentos: $error');
-      }
-      setState(() {
-        searchResults = [];
-      });
-      showDialog(
-        // ignore: use_build_context_synchronously
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Erro'),
-            content: const Text('Ocorreu um erro ao buscar os alimentos. Tente novamente mais tarde.'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
+    setState(() {
+      searchResults = results;
+      isLoading = false;
+    });
   }
 
-  // Função para mostrar o popup de detalhes do alimento
-  void _showFoodPopup(String food) {
+  void _showFoodPopup(BuildContext context, Map<String, dynamic> food) {
+    int localQuantity = quantity;
+    String porcao = 'Porção de 100g';
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(food),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButtonFormField<String>(
-                value: 'g', // Valor inicial do combobox
-                items: ['g', 'kg'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (value) {},
-                decoration: const InputDecoration(labelText: 'Porção'),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: Text(food['nome']),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.remove),
-                    onPressed: () {
-                      setState(() {
-                        if (quantity > 1) quantity--;
+                  DropdownButtonFormField<String>(
+                    value: 'Porção de 100g',
+                    items: ['g', 'kg', 'Porção de 100g'].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setStateDialog(() {
+                        porcao = value ?? 'Porção de 100g';
                       });
                     },
+                    decoration: const InputDecoration(labelText: 'Porção'),
                   ),
-                  Text(quantity.toString(), style: const TextStyle(fontSize: 18)),
-                  IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () {
-                      setState(() {
-                        quantity++;
-                      });
-                    },
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: () {
+                          setStateDialog(() {
+                            if (localQuantity > 1) localQuantity--;
+                          });
+                        },
+                      ),
+                      Text(localQuantity.toString(),
+                          style: const TextStyle(fontSize: 18)),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () {
+                          setStateDialog(() {
+                            localQuantity++;
+                          });
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Ao confirmar, navega para a tela de revisão com o alimento selecionado
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RevisaoAlimentosScreen(
-                      selectedItems: [
-                        {'food': food, 'quantity': quantity}
-                      ],
-                      selectedDate: widget.selectedDate,
-                      selectedTime: widget.selectedTime,
-                      selectedOption: widget.selectedOption,
-                      glicemiaValue: widget.glicemiaValue,
-                      isNoGlicemia: widget.isNoGlicemia,
-                      selectedMeal: widget.selectedMeal,
-                    ),
-                  ),
-                );
-                quantity = 1; // Resetar a quantidade após confirmar
-              },
-              child: const Text('OK'),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    _addFoodToSelection(food, porcao, localQuantity);
+                    Navigator.of(context).pop();
+                    _navigateToRevisaoAlimentosScreen(context);
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
+  }
+
+  void _addFoodToSelection(Map<String, dynamic> food, String porcao, int localQuantity) {
+    setState(() {
+      selectedItems!.add({
+        'porcao': porcao,
+        'food': food,
+        'quantity': localQuantity,
+      });
+      _firestoreService.saveRecentSearch(food); // Salvar a pesquisa recente
+    });
+  }
+
+  void _navigateToRevisaoAlimentosScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RevisaoAlimentosScreen(
+          selectedItems: selectedItems!,
+          selectedDate: widget.selectedDate,
+          selectedTime: widget.selectedTime,
+          selectedOption: widget.selectedOption,
+          glicemiaValue: widget.glicemiaValue,
+          isNoGlicemia: widget.isNoGlicemia,
+          selectedMeal: widget.selectedMeal,
+        ),
+      ),
+    );
+  }
+
+  List<Map<String, dynamic>> _processFavoriteMealItems(List<dynamic> mealData) {
+    List<Map<String, dynamic>> selectedItemsFromFav = [];
+
+    for (var alimento in mealData) {
+      selectedItemsFromFav.add({
+        'food': alimento['food'] ?? 'Desconhecido', // Prevenção de nulos
+        'quantity': alimento['quantity'] ?? 1, // Prevenção de nulos
+        'porcao': alimento['porcao'] ?? 'Porção não definida', // Prevenção de nulos
+      });
+    }
+
+    return selectedItemsFromFav;
   }
 
   @override
@@ -209,7 +217,7 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
           IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
-              Navigator.of(context).popUntil((route) => route.isFirst); // Voltar para a tela de registros
+              Navigator.of(context).popUntil((route) => route.isFirst);
             },
           ),
         ],
@@ -220,7 +228,6 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
-            // Campo de busca
             TextField(
               decoration: const InputDecoration(
                 labelText: 'Buscar alimento',
@@ -228,12 +235,38 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
                 prefixIcon: Icon(Icons.search),
               ),
               onChanged: (value) {
-                _searchAlimentos(value); // Chama a função de busca desde a primeira letra
+                _searchAlimentos(value);
               },
             ),
             const SizedBox(height: 20),
+            const Text('Pesquisas Recentes'),
+            Wrap(
+              children: recentSearches
+                  .map((search) => GestureDetector(
+                        onTap: () => _showFoodPopup(context, search),
+                        child: Chip(label: Text(search['nome'] ?? 'Nome não disponível')),
+                      ))
+                  .toList(),
+            ),
+            const SizedBox(height: 20),
+            const Text('Refeições Favoritas'),
+            Expanded(
+              child: ListView.builder(
+                itemCount: favoriteMeals.length,
+                itemBuilder: (context, index) {
+                  final meal = favoriteMeals[index];
+                  final List<Map<String, dynamic>> items = _processFavoriteMealItems(meal['items']);
+
+                  return ListTile(
+                    title: Text(meal['nome'] ?? 'Nome desconhecido'),
+                    onTap: () => _loadFavoriteMeal(items),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 20),
             isLoading
-                ? const CircularProgressIndicator() // Indicador de carregamento
+                ? const CircularProgressIndicator()
                 : Expanded(
                     child: searchResults.isNotEmpty
                         ? ListView.builder(
@@ -242,7 +275,7 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
                               final alimento = searchResults[index];
                               return ListTile(
                                 title: Text(alimento['nome']),
-                                onTap: () => _showFoodPopup(alimento['nome']),
+                                onTap: () => _showFoodPopup(context, alimento),
                               );
                             },
                           )
@@ -252,5 +285,34 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
         ),
       ),
     );
+  }
+
+  void _loadFavoriteMeal(List<Map<String, dynamic>> mealData) {
+    if (mealData.isNotEmpty) {
+      List<Map<String, dynamic>> selectedItemsFromFav = [];
+
+      for (var alimento in mealData) {
+        selectedItemsFromFav.add({
+          'food': alimento['food'] ?? 'Desconhecido',
+          'quantity': alimento['quantity'] ?? 1,
+          'porcao': alimento['porcao'] ?? 'Porção não definida',
+        });
+      }
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RevisaoAlimentosScreen(
+            selectedItems: selectedItemsFromFav,
+            selectedDate: widget.selectedDate,
+            selectedTime: widget.selectedTime,
+            selectedOption: widget.selectedOption,
+            glicemiaValue: widget.glicemiaValue,
+            isNoGlicemia: widget.isNoGlicemia,
+            selectedMeal: widget.selectedMeal,
+          ),
+        ),
+      );
+    }
   }
 }
