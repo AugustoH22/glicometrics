@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:main/autentificacao/auth_service.dart';
 
 class ContaScreen extends StatefulWidget {
   const ContaScreen({super.key});
@@ -107,7 +108,7 @@ class _ContaScreenState extends State<ContaScreen>
                   icon: Icons.logout,
                   text: 'Sair',
                   onTap: () {
-                    // Ação ao clicar
+                    AuthService().deslogar();
                   },
                 ),
               ],

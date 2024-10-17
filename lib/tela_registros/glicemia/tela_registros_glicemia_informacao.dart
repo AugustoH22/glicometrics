@@ -10,6 +10,7 @@ class InformacaoScreen extends StatefulWidget {
   const InformacaoScreen({super.key, this.selectedDate, this.selectedTime});
 
   @override
+  // ignore: library_private_types_in_public_api
   _InformacaoScreenState createState() => _InformacaoScreenState();
 }
 
@@ -33,11 +34,13 @@ class _InformacaoScreenState extends State<InformacaoScreen> {
       );
       
       // Exibir mensagem de sucesso
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Dados de glicemia salvos com sucesso!')),
       );
 
       // Voltar para a tela inicial
+      // ignore: use_build_context_synchronously
       Navigator.of(context).popUntil((route) => route.isFirst);
     } else {
       // Exibir mensagem de erro se a data ou hora não estiverem selecionadas

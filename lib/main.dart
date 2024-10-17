@@ -1,11 +1,12 @@
-
 import 'package:flutter/material.dart';
+import 'package:main/autentificacao/auth_screen.dart';
 import 'package:main/tela_conta/tela_conta.dart';
 import 'package:main/tela_home/tela_home.dart';
 import 'package:main/tela_receita/tela_receita.dart';
 import 'package:main/tela_registros/tela_registros.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth import
+import 'firebase/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,15 +17,24 @@ void main() async {
   runApp(const GlicoMetricsApp());
 }
 
-
-
 class GlicoMetricsApp extends StatelessWidget {
   const GlicoMetricsApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: MainScreen(),
+    return MaterialApp(
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasData) {
+            return const MainScreen(); // Se o usuário estiver autenticado, vai para a tela principal
+          } else {
+            return const AuthScreen(); // Se o usuário não estiver autenticado, vai para a tela de login
+          }
+        },
+      ),
     );
   }
 }
@@ -109,7 +119,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
-      ), // Add closing parenthesis here
+      ),
     );
   }
 }
+

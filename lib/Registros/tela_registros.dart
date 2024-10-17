@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:main/tela_registros/glicemia/tela_registros_glicemia.dart';
-import 'package:main/tela_registros/tela_registros_hipoglicemia.dart';
+import 'package:main/tela_registros/hipoglicemia/tela_registros_hipoglicemia.dart';
 import 'package:main/tela_registros/refeicao/tela_registros_refeicao.dart';
-import 'package:main/tela_registros/tela_registros_saude.dart';
+import 'package:main/tela_registros/saude/tela_registros_saude.dart';
 
 // Sua tela de Registros
 class RegistrosScreen extends StatefulWidget {
