@@ -1,12 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:main/firebase/firestore_service.dart';
 import 'package:main/tela_registros/refeicao/tela_registros_refeicao.dart';
 import 'package:main/tela_registros/refeicao/tela_registros_refeicao_busca_alimentos.dart';
 import 'package:main/tela_registros/refeicao/tela_registros_refeicao_informacao.dart';
 
 class RevisaoAlimentosScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> selectedItems; // Alimentos selecionados
+  final List<Map<String, dynamic>> selectedItems;
   final String? porcao;
   final String? selectedOption;
   final DateTime? selectedDate;
@@ -39,19 +38,13 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
   double totalGorduras = 0;
   double totalCalorias = 0;
 
+  final FirestoreService _firestoreService = FirestoreService(); // Instância do FirestoreService
+
   @override
   void initState() {
     super.initState();
     selectedItems = widget.selectedItems;
-    _calcularNutrientes(); // Calcula os nutrientes ao iniciar
-  }
-
-  // Função para remover um item da lista
-  void _removeItem(int index) {
-    setState(() {
-      widget.selectedItems.removeAt(index);
-      _calcularNutrientes(); // Recalcula os nutrientes após remover
-    });
+    _calcularNutrientes();
   }
 
   void _calcularNutrientes() {
@@ -61,10 +54,9 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
     totalCalorias = 0;
 
     for (var item in widget.selectedItems) {
-      final alimento = item['food']; // Pegue o alimento selecionado
+      final alimento = item['food'];
       final quantidade = item['quantity'] ?? 1;
-      final porcao = item['porcao'] ??
-          'Porção de 100g'; // Adicione a verificação da porção
+      final porcao = item['porcao'] ?? 'Porção de 100g';
 
       double carboidratos = double.tryParse(
               alimento['carboidrato_total'].replaceAll(',', '.') ?? '0') ??
@@ -78,28 +70,24 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
       double calorias =
           double.tryParse(alimento['energia'].replaceAll(',', '.') ?? '0') ?? 0;
 
-      // Ajustar o valor com base na porção
+      // Ajustar os valores com base na porção
       if (porcao == 'g') {
-        // Se for em gramas, considera a quantidade direta em g
         carboidratos = (carboidratos / 100) * quantidade;
         proteinas = (proteinas / 100) * quantidade;
         gorduras = (gorduras / 100) * quantidade;
         calorias = (calorias / 100) * quantidade;
       } else if (porcao == 'kg') {
-        // Se for em quilogramas, multiplica por 1000
         carboidratos = (carboidratos / 100) * (quantidade * 1000);
         proteinas = (proteinas / 100) * (quantidade * 1000);
         gorduras = (gorduras / 100) * (quantidade * 1000);
         calorias = (calorias / 100) * (quantidade * 1000);
       } else if (porcao == 'Porção de 100g') {
-        // Se a porção for 100g, mantém os valores como estão, multiplicando pela quantidade
-        carboidratos = carboidratos * quantidade;
-        proteinas = proteinas * quantidade;
-        gorduras = gorduras * quantidade;
-        calorias = calorias * quantidade;
+        carboidratos *= quantidade;
+        proteinas *= quantidade;
+        gorduras *= quantidade;
+        calorias *= quantidade;
       }
 
-      // Acumula os valores totais
       totalCarboidratos += carboidratos;
       totalProteinas += proteinas;
       totalGorduras += gorduras;
@@ -143,121 +131,20 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
         ],
       ),
       body: SingleChildScrollView(
-        // Adicionado para evitar overflow
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
-              // Row com opções de navegação no subtítulo
-              Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Tela "Momento"
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => RefeicaoScreen(
-                              selectedDate: widget.selectedDate,
-                              selectedTime: widget.selectedTime,
-                              selectedOption: widget.selectedOption,
-                            ),
-                          ),
-                        );
-                      }, // Desabilita o clique se a tela não foi visitada
-                      child: const Row(
-                        children: [
-                          Icon(Icons.access_time, color: Colors.grey),
-                          SizedBox(width: 4),
-                          Text(
-                            'Momento >',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    // Tela "Informação"
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => InformacaoRefeicaoScreen(
-                              glicemiaValue: widget.glicemiaValue,
-                              isNoGlicemia: widget.isNoGlicemia,
-                              selectedMeal: widget.selectedMeal,
-                              selectedDate: widget.selectedDate,
-                              selectedTime: widget.selectedTime,
-                              selectedOption: widget.selectedOption,
-                            ),
-                          ),
-                        );
-                      },
-                      child: const Row(
-                        children: [
-                          Icon(Icons.info, color: Colors.grey),
-                          SizedBox(width: 4),
-                          Text(
-                            'Informação >',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    // Tela "Refeição"
-                    GestureDetector(
-                      onTap: () {},
-                      child: const Row(
-                        children: [
-                          Icon(Icons.restaurant, color: Colors.blue),
-                          SizedBox(width: 4),
-                          Text(
-                            'Refeição >',
-                            style: TextStyle(fontSize: 16, color: Colors.blue),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _buildNavegacaoMomentoInformacao(),
               const SizedBox(height: 20),
               const Text(
                 'Itens adicionados',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 10),
-              ListView.builder(
-                shrinkWrap:
-                    true, // Necessário para funcionar dentro de SingleChildScrollView
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: widget.selectedItems.length,
-                itemBuilder: (context, index) {
-                  final Map<String, dynamic> alimento =
-                      widget.selectedItems[index]['food'];
-                  return ListTile(
-                    title: Text(alimento['nome'] ?? 'Nome não disponível'),
-                    subtitle: Text(
-                        'Quantidade: ${widget.selectedItems[index]['quantity']}'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => _removeItem(index),
-                    ),
-                  );
-                },
-              ),
+              _buildListaAlimentos(),
               const SizedBox(height: 20),
               Center(
                 child: GestureDetector(
@@ -286,160 +173,11 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Favoritar refeição'),
-                  Switch(
-                    value: isFavorited,
-                    onChanged: (value) {
-                      setState(() {
-                        isFavorited = value;
-                      });
-                    },
-                  ),
-                ],
-              ),
+              _buildSwitchFavorito(),
               const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildNutrientContainer(
-                      'Carboidratos', 'g', totalCarboidratos),
-                  const SizedBox(width: 8),
-                  _buildNutrientContainer('Proteínas', 'g', totalProteinas),
-                  const SizedBox(width: 8),
-                  _buildNutrientContainer('Gorduras', 'g', totalGorduras),
-                  const SizedBox(width: 8),
-                  _buildNutrientContainer('Calorias', 'kcal', totalCalorias),
-                ],
-              ),
+              _buildNutrientes(),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: widget.selectedItems.isNotEmpty
-                    ? () async {
-                        try {
-                          // Criar um mapa para armazenar os dados da refeição
-                          Map<String, dynamic> refeicaoData = {
-                            'selectedDate':
-                                widget.selectedDate?.toIso8601String() ?? '',
-                            'selectedTime':
-                                widget.selectedTime?.format(context) ?? '',
-                            'glicemiaValue': widget.glicemiaValue ?? '',
-                            'isNoGlicemia': widget.isNoGlicemia ?? false,
-                            'selectedMeal': widget.selectedMeal ?? '',
-                            'totalCarboidratos': totalCarboidratos,
-                            'totalProteinas': totalProteinas,
-                            'totalGorduras': totalGorduras,
-                            'totalCalorias': totalCalorias,
-                            'items': widget.selectedItems.map((item) {
-                              // Extrair os dados do alimento corretamente como Map<String, dynamic>
-                              final Map<String, dynamic> alimentoData =
-                                  item['food'];
-
-                              return {
-                                'food':
-                                    alimentoData, // Usar os dados extraídos diretamente
-                                'quantity': item['quantity'], // Quantidade
-                                'porcao': item['porcao'] // Tipo de porção
-                              };
-                            }).toList(),
-                          };
-
-                          // Se a refeição for favoritada, pedir o nome
-                          if (isFavorited) {
-                            String nomeRefeicaoFavorita = '';
-                            await showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title:
-                                      const Text('Nome da Refeição Favorita'),
-                                  content: TextField(
-                                    onChanged: (value) {
-                                      nomeRefeicaoFavorita = value;
-                                    },
-                                    decoration: const InputDecoration(
-                                      labelText: 'Digite o nome da refeição',
-                                    ),
-                                  ),
-                                  actions: <Widget>[
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-
-                            refeicaoData['nomeFavorito'] = nomeRefeicaoFavorita;
-                            await FirebaseFirestore.instance
-                                .collection('favoritos')
-                                .add(refeicaoData);
-                          }
-
-                          await FirebaseFirestore.instance
-                              .collection('refeicoes')
-                              .add(refeicaoData);
-                          if (kDebugMode) {
-                            print('Refeição salva com sucesso!');
-                          }
-
-                          showDialog(
-                            // ignore: use_build_context_synchronously
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text('Sucesso'),
-                                content:
-                                    const Text('Refeição salva com sucesso!'),
-                                actions: <Widget>[
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context)
-                                          .popUntil((route) => route.isFirst);
-                                    },
-                                    child: const Text('OK'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        } catch (e) {
-                          if (kDebugMode) {
-                            print('Erro ao salvar a refeição: $e');
-                          }
-                          showDialog(
-                            // ignore: use_build_context_synchronously
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text('Erro'),
-                                content: const Text(
-                                    'Ocorreu um erro ao salvar a refeição.'),
-                                actions: <Widget>[
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('OK'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        }
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  disabledForegroundColor: Colors.grey.withOpacity(0.38),
-                  disabledBackgroundColor: Colors.grey.withOpacity(0.12),
-                ),
-                child: const Text('Salvar'),
-              )
+              _buildSalvarButton(),
             ],
           ),
         ),
@@ -447,7 +185,165 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
     );
   }
 
+  // Função para remover um item da lista
+  void _removeItem(int index) {
+    setState(() {
+      widget.selectedItems.removeAt(index);
+      _calcularNutrientes();
+    });
+  }
+
+  // Função para construir o botão de salvar
+  Widget _buildSalvarButton() {
+    return ElevatedButton(
+      onPressed: widget.selectedItems.isNotEmpty
+          ? () async {
+              try {
+                Map<String, dynamic> refeicaoData = {
+                  'selectedDate': widget.selectedDate?.toIso8601String() ?? '',
+                  'selectedTime': widget.selectedTime?.format(context) ?? '',
+                  'glicemiaValue': widget.glicemiaValue ?? '',
+                  'isNoGlicemia': widget.isNoGlicemia ?? false,
+                  'selectedMeal': widget.selectedMeal ?? '',
+                  'totalCarboidratos': totalCarboidratos,
+                  'totalProteinas': totalProteinas,
+                  'totalGorduras': totalGorduras,
+                  'totalCalorias': totalCalorias,
+                  'items': widget.selectedItems.map((item) {
+                    final Map<String, dynamic> alimentoData = item['food'];
+                    return {
+                      'food': alimentoData,
+                      'quantity': item['quantity'],
+                      'porcao': item['porcao']
+                    };
+                  }).toList(),
+                };
+
+                if (isFavorited) {
+                  String nomeRefeicaoFavorita = '';
+                  await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Nome da Refeição Favorita'),
+                        content: TextField(
+                          onChanged: (value) {
+                            nomeRefeicaoFavorita = value;
+                          },
+                          decoration: const InputDecoration(
+                            labelText: 'Digite o nome da refeição',
+                          ),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+
+                  // Salvar refeição favorita no Firestore
+                  await _firestoreService.salvarRefeicaoFavorita(
+                      nomeRefeicaoFavorita, refeicaoData);
+                } else {
+                  // Salvar refeição no Firestore
+                  await _firestoreService.salvarRefeicao(refeicaoData);
+                }
+
+                _showSuccessDialog();
+              } catch (e) {
+                _showErrorDialog();
+              }
+            }
+          : null,
+      style: ElevatedButton.styleFrom(
+        disabledForegroundColor: Colors.grey.withOpacity(0.38),
+        disabledBackgroundColor: Colors.grey.withOpacity(0.12),
+      ),
+      child: const Text('Salvar'),
+    );
+  }
+
+  // Função para mostrar um dialogo de sucesso
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Sucesso'),
+          content: const Text('Refeição salva com sucesso!'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Função para mostrar um dialogo de erro
+  void _showErrorDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Erro'),
+          content: const Text('Ocorreu um erro ao salvar a refeição.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Função para construir o switch de favoritar refeição
+  Widget _buildSwitchFavorito() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text('Favoritar refeição'),
+        Switch(
+          value: isFavorited,
+          onChanged: (value) {
+            setState(() {
+              isFavorited = value;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
   // Função para construir os containers de informações nutricionais
+  Widget _buildNutrientes() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        _buildNutrientContainer('Carboidratos', 'g', totalCarboidratos),
+        const SizedBox(width: 8),
+        _buildNutrientContainer('Proteínas', 'g', totalProteinas),
+        const SizedBox(width: 8),
+        _buildNutrientContainer('Gorduras', 'g', totalGorduras),
+        const SizedBox(width: 8),
+        _buildNutrientContainer('Calorias', 'kcal', totalCalorias),
+      ],
+    );
+  }
+
   Widget _buildNutrientContainer(String label, String unit, double value) {
     return Expanded(
       child: Container(
@@ -467,9 +363,106 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
             Text(
               '${value.toStringAsFixed(2)} $unit',
               style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-            ), // Exibe o valor calculado dos nutrientes
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  // Função para construir a lista de alimentos
+  Widget _buildListaAlimentos() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: widget.selectedItems.length,
+      itemBuilder: (context, index) {
+        final Map<String, dynamic> alimento = widget.selectedItems[index]['food'];
+        return ListTile(
+          title: Text(alimento['nome'] ?? 'Nome não disponível'),
+          subtitle: Text('Quantidade: ${widget.selectedItems[index]['quantity']}'),
+          trailing: IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () => _removeItem(index),
+          ),
+        );
+      },
+    );
+  }
+
+  // Função para construir a navegação entre momentos
+  Widget _buildNavegacaoMomentoInformacao() {
+    return Center(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RefeicaoScreen(
+                    selectedDate: widget.selectedDate,
+                    selectedTime: widget.selectedTime,
+                    selectedOption: widget.selectedOption,
+                  ),
+                ),
+              );
+            },
+            child: const Row(
+              children: [
+                Icon(Icons.access_time, color: Colors.grey),
+                SizedBox(width: 4),
+                Text(
+                  'Momento >',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => InformacaoRefeicaoScreen(
+                    glicemiaValue: widget.glicemiaValue,
+                    isNoGlicemia: widget.isNoGlicemia,
+                    selectedMeal: widget.selectedMeal,
+                    selectedDate: widget.selectedDate,
+                    selectedTime: widget.selectedTime,
+                    selectedOption: widget.selectedOption,
+                  ),
+                ),
+              );
+            },
+            child: const Row(
+              children: [
+                Icon(Icons.info, color: Colors.grey),
+                SizedBox(width: 4),
+                Text(
+                  'Informação >',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: () {},
+            child: const Row(
+              children: [
+                Icon(Icons.restaurant, color: Colors.blue),
+                SizedBox(width: 4),
+                Text(
+                  'Refeição >',
+                  style: TextStyle(fontSize: 16, color: Colors.blue),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

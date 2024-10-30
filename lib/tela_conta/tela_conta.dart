@@ -36,9 +36,7 @@ class _ContaScreenState extends State<ContaScreen>
               child: Row(
                 children: [
                   const CircleAvatar(
-                    radius: 40,
-                    backgroundImage: AssetImage(
-                        'assets/images/perfil.jpg'), // Substitua pelo caminho da imagem
+                    radius: 40, // Substitua pelo caminho da imagem
                   ),
                   const SizedBox(
                       width: 10), // Espaçamento entre o avatar e o texto

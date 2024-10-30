@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   Future<String?> entrarUsuario(
       {required String email, required String senha}) async {
@@ -79,5 +81,29 @@ class AuthService {
       return e.code;
     }
     return null;
+  }
+
+  Future<String?> entrarComGoogle() async {
+    try {
+      // Inicia o processo de autenticação com o Google
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        return "Usuário cancelou o login.";
+      }
+
+      // Autentica no Firebase com o token do Google
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await _firebaseAuth.signInWithCredential(credential);
+      return null;
+    } catch (e) {
+      return "Falha ao entrar com o Google: ${e.toString()}";
+    }
   }
 }

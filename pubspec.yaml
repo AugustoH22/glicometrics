@@ -39,7 +39,10 @@ dependencies:
   cloud_firestore: ^5.4.4
   uuid: ^4.5.1
   http: ^1.2.2
+  google_sign_in: ^6.2.1
   firebase_auth: ^5.3.1
+  flutter_signin_button: ^2.0.0
+  fl_chart: ^0.69.0
 
 dev_dependencies:
   flutter_test:

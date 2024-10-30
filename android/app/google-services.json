@@ -12,7 +12,12 @@
           "package_name": "com.augusto.glicometrics"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "833748789546-fpfidf4670jlnrl0f8uj0hp9cg6tlujs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCMI7EVs8ZBIkOQqIdT7XdlcJCyQ8Ik520"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "833748789546-fpfidf4670jlnrl0f8uj0hp9cg6tlujs.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "833748789546-iiodpj5p2j7f8pij2brqu7g9i6drsl56.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.main"
+              }
+            }
+          ]
         }
       }
     },
@@ -31,7 +48,20 @@
           "package_name": "com.example.main"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "833748789546-0hq07gerkvgq02runv3l2vr9o1hm9rhs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.main",
+            "certificate_hash": "7bc2a6c1c7a42cb1c0f8ee9bb19e3147eb99cc45"
+          }
+        },
+        {
+          "client_id": "833748789546-fpfidf4670jlnrl0f8uj0hp9cg6tlujs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCMI7EVs8ZBIkOQqIdT7XdlcJCyQ8Ik520"
@@ -39,7 +69,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "833748789546-fpfidf4670jlnrl0f8uj0hp9cg6tlujs.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "833748789546-iiodpj5p2j7f8pij2brqu7g9i6drsl56.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.main"
+              }
+            }
+          ]
         }
       }
     }

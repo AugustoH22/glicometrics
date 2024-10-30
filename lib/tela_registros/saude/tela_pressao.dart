@@ -6,6 +6,7 @@ class PressaoArterialScreen extends StatefulWidget {
   const PressaoArterialScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _PressaoArterialScreenState createState() => _PressaoArterialScreenState();
 }
 
@@ -42,7 +43,8 @@ class _PressaoArterialScreenState extends State<PressaoArterialScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // Voltar para a tela anterior
+            Navigator.of(context).popUntil(
+                  (route) => route.isFirst); // Voltar para a tela anterior
           },
         ),
         centerTitle: true,

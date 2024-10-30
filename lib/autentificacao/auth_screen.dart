@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:main/autentificacao/auth_service.dart';
 import 'package:main/autentificacao/show_snackbar.dart';
 
@@ -26,9 +27,7 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 32,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Center(
           child: SingleChildScrollView(
             child: Container(
@@ -140,6 +139,16 @@ class _AuthScreenState extends State<AuthScreen> {
                         (isEntrando) ? "Entrar" : "Cadastrar",
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    // Botão para login com Google
+                    SignInButton(
+                      Buttons.Google,
+                      onPressed: () {
+                        _entrarComGoogle();
+                      },
+                      text: "Entrar com o Google",
+                    ),
+                    const SizedBox(height: 16),
                     TextButton(
                       onPressed: () {
                         setState(() {
@@ -205,6 +214,15 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
+  _entrarComGoogle() {
+    authService.entrarComGoogle().then((String? erro) {
+      if (erro != null) {
+        // ignore: use_build_context_synchronously
+        showSnackBar(context: context, mensagem: erro);
+      }
+    });
+  }
+
   esqueciMinhaSenhaClicado() {
     String email = _emailController.text;
     showDialog(
@@ -237,7 +255,6 @@ class _AuthScreenState extends State<AuthScreen> {
                     // ignore: use_build_context_synchronously
                     showSnackBar(context: context, mensagem: erro);
                   }
-
                   // ignore: use_build_context_synchronously
                   Navigator.pop(context);
                 });

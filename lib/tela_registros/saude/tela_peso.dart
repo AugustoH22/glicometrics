@@ -30,7 +30,7 @@ class _PesoScreenState extends State<PesoScreen> {
     if (ultimoPeso != null) {
       setState(() {
         peso = '${ultimoPeso['peso']} kg';
-        dataHora = '${ultimoPeso['data'].toDate().day}/${ultimoPeso['data'].toDate().month}/${ultimoPeso['data'].toDate().year} - ${ultimoPeso['hora']}';
+        dataHora = '${ultimoPeso['data'].day}/${ultimoPeso['data'].month}/${ultimoPeso['data'].year} - ${ultimoPeso['hora']}';
       });
     } else {
       setState(() {
@@ -54,7 +54,8 @@ class _PesoScreenState extends State<PesoScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.of(context).popUntil(
+                  (route) => route.isFirst);
           },
         ),
       ),
