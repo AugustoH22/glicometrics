@@ -282,7 +282,7 @@ class FirestoreService {
   }) async {
     try {
       final glicemiaData = {
-        'data': data.toIso8601String(),
+        'data': data,
         'hora':
             '${hora.hour.toString().padLeft(2, '0')}:${hora.minute.toString().padLeft(2, '0')}',
         'tipo': tipo,
@@ -411,7 +411,8 @@ class FirestoreService {
       List<Map<String, dynamic>> historico = [];
 
       // Buscar histórico de glicemia
-      QuerySnapshot glicemiaSnapshot = await _db.collection(uid)
+      QuerySnapshot glicemiaSnapshot = await _db
+          .collection(uid)
           .doc('glicemia')
           .collection('c_glicemia')
           .orderBy('data', descending: true)
@@ -426,7 +427,8 @@ class FirestoreService {
       }
 
       // Buscar histórico de pressão arterial
-      QuerySnapshot pressaoSnapshot = await _db.collection(uid)
+      QuerySnapshot pressaoSnapshot = await _db
+          .collection(uid)
           .doc('pressao_arterial')
           .collection('c_pressao_arterial')
           .orderBy('data', descending: true)
@@ -442,9 +444,12 @@ class FirestoreService {
       }
 
       // Buscar histórico de peso
-      QuerySnapshot pesoSnapshot =
-          await _db.collection(uid)
-          .doc('peso').collection('c_peso').orderBy('data', descending: true).get();
+      QuerySnapshot pesoSnapshot = await _db
+          .collection(uid)
+          .doc('peso')
+          .collection('c_peso')
+          .orderBy('data', descending: true)
+          .get();
       for (var doc in pesoSnapshot.docs) {
         historico.add({
           'tipo': 'Peso',
@@ -463,6 +468,80 @@ class FirestoreService {
         print('Erro ao buscar histórico de registros: $e');
       }
       return [];
+    }
+  }
+
+// Função para buscar as medições de glicemia dos últimos 30 dias
+  Future<List<Map<String, dynamic>>> fetchGlicemiaUltimos30Dias() async {
+    final DateTime dataLimite =
+        DateTime.now().subtract(const Duration(days: 30));
+
+    try {
+      QuerySnapshot snapshot = await _db
+          .collection(uid) // Confirma o uso do UID do usuário
+          .doc('glicemia')
+          .collection('c_glicemias')
+          .where('data', isGreaterThanOrEqualTo: dataLimite)
+          .orderBy('data')
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        print('Nenhum documento de glicemia encontrado no Firestore.');
+      }
+
+      return snapshot.docs.map((doc) {
+        DateTime data = (doc['data'] as Timestamp).toDate();
+        double valorGlicemia = double.tryParse(doc['valor'].toString()) ?? 0.0;
+
+        print(
+            'Data: $data, Valor: $valorGlicemia'); // Log dos dados recuperados
+        return {
+          'data': data,
+          'valor': valorGlicemia,
+        };
+      }).toList();
+    } catch (error) {
+      print('Erro ao buscar medições de glicemia: $error');
+      return [];
+    }
+  }
+
+// Método para buscar o peso atual, o maior peso e o menor peso
+  Future<Map<String, double>> getPesoData() async {
+    try {
+      // Referência para a coleção de pesos do usuário
+      QuerySnapshot pesoSnapshot = await _db
+          .collection(uid)
+          .doc('peso')
+          .collection('c_peso')
+          .orderBy('data', descending: true)
+          .get();
+
+      if (pesoSnapshot.docs.isEmpty) {
+        // Se não houver documentos de peso, retorne valores padrão
+        return {'pesoAtual': 0, 'maiorPeso': 0, 'menorPeso': 0};
+      }
+
+      // Peso Atual: o primeiro documento no snapshot é o peso mais recente
+      double pesoAtual = pesoSnapshot.docs.first['peso'] ?? 0;
+
+      // Busca o maior e o menor peso
+      double maiorPeso = pesoSnapshot.docs
+          .map((doc) => doc['peso'] as double)
+          .reduce((a, b) => a > b ? a : b);
+
+      double menorPeso = pesoSnapshot.docs
+          .map((doc) => doc['peso'] as double)
+          .reduce((a, b) => a < b ? a : b);
+
+      return {
+        'pesoAtual': pesoAtual,
+        'maiorPeso': maiorPeso,
+        'menorPeso': menorPeso,
+      };
+    } catch (e) {
+      print('Erro ao buscar dados de peso: $e');
+      return {'pesoAtual': 0, 'maiorPeso': 0, 'menorPeso': 0};
     }
   }
 
