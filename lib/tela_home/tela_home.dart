@@ -155,6 +155,13 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
               border: Border.all(
                 color: Colors.black.withOpacity(0.2),
                 width: 1,
@@ -177,6 +184,13 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
               border: Border.all(
                 color: Colors.black.withOpacity(0.2),
                 width: 1,
@@ -273,24 +287,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildMedicoes() {
     return Column(
       children: [
-        Container(
-          height: 100,
-          margin: const EdgeInsets.fromLTRB(16.0, 2.0, 16.0, 1.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Colors.black.withOpacity(0.2),
-              width: 1,
-            ),
-          ),
-          child: Center(
-            child: _medicoesGlicemia.isNotEmpty
-                ? Text(
-                    'Última Glicemia: ${_medicoesGlicemia.first['valor']} mg/dL')
-                : const Text('Sem dados de glicemia'),
-          ),
-        ),
         const SizedBox(height: 10),
         // Peso Atual, Maior Peso e Menor Peso
         // IMC com barra colorida e altura ajustável
@@ -307,6 +303,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 offset: const Offset(0, 5),
               ),
             ],
+            border: Border.all(
+              color: Colors.black.withOpacity(0.2),
+              width: 1,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -369,6 +369,13 @@ class _HomeScreenState extends State<HomeScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
             border: Border.all(
               color: Colors.black.withOpacity(0.2),
               width: 1,
