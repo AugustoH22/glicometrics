@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:main/autentificacao/auth_screen.dart';
 import 'package:main/tela_conta/tela_conta.dart';
 import 'package:main/tela_home/tela_home.dart';
@@ -103,7 +104,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.receipt),
+            icon: FaIcon(FontAwesomeIcons.conciergeBell),
             label: 'Receita',
           ),
           BottomNavigationBarItem(
