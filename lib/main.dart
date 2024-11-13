@@ -8,18 +8,25 @@ import 'package:main/tela_registros/tela_registros.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth import
 import 'firebase/firebase_options.dart';
+// ignore: depend_on_referenced_packages
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+ await initializeDateFormatting('pt_BR', null);
 
   runApp(const GlicoMetricsApp());
 }
 
+
 class GlicoMetricsApp extends StatelessWidget {
   const GlicoMetricsApp({super.key});
+
+
+   
 
   @override
   Widget build(BuildContext context) {

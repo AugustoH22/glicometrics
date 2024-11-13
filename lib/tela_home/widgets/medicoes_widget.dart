@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+// ignore: depend_on_referenced_packages
+import 'package:intl/intl.dart';
+
 
 class MedicoesWidget extends StatelessWidget {
   final double pesoAtual;
@@ -8,6 +12,7 @@ class MedicoesWidget extends StatelessWidget {
   final double altura;
   final Map<String, dynamic>? ultimaPressao;
   final VoidCallback alterarAltura;
+  final List<Map<String, dynamic>>? ultimasPressao;
 
   const MedicoesWidget({
     super.key,
@@ -18,13 +23,14 @@ class MedicoesWidget extends StatelessWidget {
     required this.altura,
     required this.alterarAltura,
     this.ultimaPressao,
+    this.ultimasPressao,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 10),
+        const SizedBox(height: 20),
         // Peso Atual, Maior Peso, e Menor Peso
         Container(
           padding: const EdgeInsets.all(16.0),
@@ -39,6 +45,10 @@ class MedicoesWidget extends StatelessWidget {
                 offset: const Offset(0, 5),
               ),
             ],
+            border: Border.all(
+              color: Colors.black.withOpacity(0.2),
+              width: 1,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -56,7 +66,8 @@ class MedicoesWidget extends StatelessWidget {
               // Exibição do valor do IMC e classificação
               Text(
                 imc.toStringAsFixed(1),
-                style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
 
@@ -75,14 +86,16 @@ class MedicoesWidget extends StatelessWidget {
               InkWell(
                 onTap: alterarAltura,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     "${altura.toInt()} cm",
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -91,9 +104,8 @@ class MedicoesWidget extends StatelessWidget {
         ),
         const SizedBox(height: 10),
 
-        // Pressão Arterial
         Container(
-          height: 100,
+          height: 300,
           margin: const EdgeInsets.symmetric(horizontal: 16.0),
           decoration: BoxDecoration(
             color: Colors.white,
@@ -105,13 +117,73 @@ class MedicoesWidget extends StatelessWidget {
                 offset: const Offset(0, 5),
               ),
             ],
+            border: Border.all(
+              color: Colors.black.withOpacity(0.2),
+              width: 1,
+            ),
           ),
-          child: Center(
-            child: ultimaPressao != null
-                ? Text(
-                    'Pressão: ${ultimaPressao!['sistolica']}/${ultimaPressao!['diastolica']} mmHg')
-                : const Text('Sem dados de pressão arterial'),
-          ),
+          child: ultimaPressao!.isEmpty
+              ? const Center(child: Text('Sem dados de pressão arterial'))
+              : Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SfCartesianChart(
+                    primaryXAxis: CategoryAxis(
+                      title: AxisTitle(text: 'Hora'),
+                      majorGridLines: const MajorGridLines(width: 0),
+                      labelRotation: -45,
+                    ),
+                    primaryYAxis: NumericAxis(
+                      title: AxisTitle(text: 'Pressão (mmHg)'),
+                      minimum: 40,
+                      maximum: 200,
+                      interval: 20,
+                    ),
+                    tooltipBehavior: TooltipBehavior(enable: true),
+                    series: <ChartSeries>[
+                      RangeColumnSeries<Map<String, dynamic>, String>(
+                        dataSource: ultimasPressao ?? [],
+                        xValueMapper: (Map<String, dynamic> data, _) =>
+                            DateFormat('H a', 'pt_BR').format(data['data']),
+                        lowValueMapper: (Map<String, dynamic> data, _) =>
+                            data['diastolica'],
+                        highValueMapper: (Map<String, dynamic> data, _) =>
+                            data['sistolica'],
+                        name: 'Pressão',
+                        color: Colors.green,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(6)),
+                        dataLabelSettings: DataLabelSettings(
+                          isVisible: true,
+                          textStyle: const TextStyle(fontSize: 10),
+                          labelAlignment: ChartDataLabelAlignment.top,
+                          builder: (dynamic data, dynamic point, dynamic series,
+                              int pointIndex, int seriesIndex) {
+                            return Column(
+                              children: [
+                                Text(
+                                  '${point.high.toInt()}',
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                                const SizedBox(
+                                    height: 50), // Espaço entre os rótulos
+                                Text(
+                                  '${point.low.toInt()}',
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
         ),
       ],
     );
@@ -151,8 +223,11 @@ class MedicoesWidget extends StatelessWidget {
           ),
         ),
         Positioned(
-          left: ((imc - 15) / (40 - 15)) * MediaQuery.of(context).size.width * 0.8,
-          child: const Icon(Icons.arrow_drop_down, color: Colors.black, size: 20),
+          left: ((imc - 15) / (40 - 15)) *
+              MediaQuery.of(context).size.width *
+              0.8,
+          child:
+              const Icon(Icons.arrow_drop_down, color: Colors.black, size: 20),
         ),
       ],
     );
@@ -166,3 +241,4 @@ class MedicoesWidget extends StatelessWidget {
     return "Obesidade";
   }
 }
+

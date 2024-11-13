@@ -143,81 +143,87 @@ class GraficosLinha extends StatelessWidget {
               width: 1,
             ),
           ),
-          child: SfCartesianChart(
-            primaryXAxis: CategoryAxis(
-              title: AxisTitle(text: 'Últimos 7 dias'),
+          child: Padding(
+            padding: const EdgeInsets.only(
+              left: 10.0, // margem à esquerda
+              right: 10.0, // margem à direita
+              top: 20.0, // margem no topo
+              bottom: 5.0, // margem na parte inferior
             ),
-            primaryYAxis: NumericAxis(
-              name: 'Calorias',
-              title: AxisTitle(text: 'Calorias (kcal)'),
-              opposedPosition: false,
-              interval: 100,
-              minimum: 0,
-            ),
-            axes: [
-              NumericAxis(
-                name: 'Nutrientes',
-                title: AxisTitle(text: 'Nutrientes (g)'),
-                opposedPosition: true,
-                interval: 20,
+            child: SfCartesianChart(
+              primaryXAxis: CategoryAxis(),
+              primaryYAxis: NumericAxis(
+                name: 'Calorias',
+                title: AxisTitle(text: 'Calorias (kcal)'),
+                opposedPosition: false,
+                interval: 100,
                 minimum: 0,
               ),
-            ],
-            legend: Legend(isVisible: true, position: LegendPosition.bottom),
-            tooltipBehavior: TooltipBehavior(enable: true),
-            series: <ChartSeries>[
-              // Série de Calorias, associada ao eixo "Calorias"
-              ColumnSeries<Map<String, dynamic>, String>(
-                dataSource: nutrientesPorDia.reversed.toList(),
-                xValueMapper: (Map<String, dynamic> data, _) =>
-                    _getFormattedDate((data['data'] as DateTime).add(const Duration(days: 1))),
-                yValueMapper: (Map<String, dynamic> data, _) =>
-                    data['calorias'] ?? 0,
-                yAxisName: 'Calorias',
-                name: 'Cal.',
-                color: Colors.red,
-              ),
-              // Série de Carboidratos, associada ao eixo "Nutrientes"
-              ColumnSeries<Map<String, dynamic>, String>(
-                dataSource: nutrientesPorDia.reversed.toList(),
-                xValueMapper: (Map<String, dynamic> data, _) =>
-                    _getFormattedDate((data['data'] as DateTime).add(const Duration(days: 1))),
-                yValueMapper: (Map<String, dynamic> data, _) =>
-                    data['carboidratos'] ?? 0,
-                yAxisName: 'Nutrientes',
-                name: 'Carb.',
-                color: Colors.blue,
-              ),
-              // Série de Proteínas, associada ao eixo "Nutrientes"
-              ColumnSeries<Map<String, dynamic>, String>(
-                dataSource: nutrientesPorDia.reversed.toList(),
-                xValueMapper: (Map<String, dynamic> data, _) =>
-                    _getFormattedDate((data['data'] as DateTime).add(const Duration(days: 1))),
-                yValueMapper: (Map<String, dynamic> data, _) =>
-                    data['proteinas'] ?? 0,
-                yAxisName: 'Nutrientes',
-                name: 'Prot.',
-                color: Colors.green,
-              ),
-              // Série de Gorduras, associada ao eixo "Nutrientes"
-              ColumnSeries<Map<String, dynamic>, String>(
-                dataSource: nutrientesPorDia.reversed.toList(),
-                xValueMapper: (Map<String, dynamic> data, _) =>
-                    _getFormattedDate(data['data'] as DateTime),
-                yValueMapper: (Map<String, dynamic> data, _) =>
-                    data['gorduras'] ?? 0,
-                yAxisName: 'Nutrientes',
-                name: 'Gord.',
-                color: Colors.orange,
-              ),
-            ],
+              axes: [
+                NumericAxis(
+                  name: 'Nutrientes',
+                  title: AxisTitle(text: 'Nutrientes (g)'),
+                  opposedPosition: true,
+                  interval: 20,
+                  minimum: 0,
+                ),
+              ],
+              legend: Legend(isVisible: true, position: LegendPosition.bottom),
+              tooltipBehavior: TooltipBehavior(enable: true),
+              series: <ChartSeries>[
+                // Série de Calorias, associada ao eixo "Calorias"
+                LineSeries<Map<String, dynamic>, String>(
+                  dataSource: nutrientesPorDia.reversed.toList(),
+                  xValueMapper: (Map<String, dynamic> data, _) =>
+                      _getFormattedDate((data['data'] as DateTime)),
+                  yValueMapper: (Map<String, dynamic> data, _) =>
+                      data['calorias'] ?? 0,
+                  yAxisName: 'Calorias',
+                  name: 'Cal.',
+                  color: Colors.red,
+                ),
+                // Série de Carboidratos, associada ao eixo "Nutrientes"
+                LineSeries<Map<String, dynamic>, String>(
+                  dataSource: nutrientesPorDia.reversed.toList(),
+                  xValueMapper: (Map<String, dynamic> data, _) =>
+                      _getFormattedDate((data['data'] as DateTime)
+                          .add(const Duration(days: 1))),
+                  yValueMapper: (Map<String, dynamic> data, _) =>
+                      data['carboidratos'] ?? 0,
+                  yAxisName: 'Nutrientes',
+                  name: 'Carb.',
+                  color: Colors.blue,
+                ),
+                // Série de Proteínas, associada ao eixo "Nutrientes"
+                LineSeries<Map<String, dynamic>, String>(
+                  dataSource: nutrientesPorDia.reversed.toList(),
+                  xValueMapper: (Map<String, dynamic> data, _) =>
+                      _getFormattedDate((data['data'] as DateTime)),
+                  yValueMapper: (Map<String, dynamic> data, _) =>
+                      data['proteinas'] ?? 0,
+                  yAxisName: 'Nutrientes',
+                  name: 'Prot.',
+                  color: Colors.green,
+                ),
+                // Série de Gorduras, associada ao eixo "Nutrientes"
+                LineSeries<Map<String, dynamic>, String>(
+                  dataSource: nutrientesPorDia.reversed.toList(),
+                  xValueMapper: (Map<String, dynamic> data, _) =>
+                      _getFormattedDate(data['data'] as DateTime),
+                  yValueMapper: (Map<String, dynamic> data, _) =>
+                      data['gorduras'] ?? 0,
+                  yAxisName: 'Nutrientes',
+                  name: 'Gord.',
+                  color: Colors.orange,
+                ),
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  // Função para formatar a data para exibição no gráfico
   String _getFormattedDate(DateTime date) {
     return '${date.day}/${date.month}';
   }

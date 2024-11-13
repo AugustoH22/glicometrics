@@ -26,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic>? _ultimaPressao;
   List<Map<String, dynamic>> _refeicoesDoDia = [];
   List<FlSpot> glicemiaSpots = [];
+  List<Map<String, dynamic>> _ultimasPressao = [];
   double pesoAtual = 0;
   double maiorPeso = 0;
   double menorPeso = 0;
@@ -47,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _refeicoesDoDia = await firebaseService.getRefeicoesDoDia();
     _data = await firebaseService.fetchGlicemiaUltimos30Dias();
     _pesoData = await firebaseService.getPesoData();
-
+    _ultimasPressao = await firebaseService.getUltimasMedicoesPressao();
     
     List<FlSpot> spots = _data.map((entry) {
       DateTime data = entry['data'];
@@ -94,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       altura: altura,
                       alterarAltura: _alterarAltura,
                       ultimaPressao: _ultimaPressao,
+                      ultimasPressao: _ultimasPressao,
                     ),
                     const SizedBox(height: 20),
                     const Text(

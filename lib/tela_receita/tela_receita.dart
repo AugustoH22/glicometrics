@@ -5,6 +5,7 @@ class ReceitaScreen extends StatefulWidget {
   const ReceitaScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ReceitaScreenState createState() => _ReceitaScreenState();
 }
 
@@ -91,8 +92,8 @@ class _ReceitaScreenState extends State<ReceitaScreen>
         onPressed: () {
           // Ação para adicionar nova receita
         },
-        child: const Icon(Icons.add),
         backgroundColor: const Color(0xFF1693A5),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -103,10 +104,10 @@ class DetalhesReceitaScreen extends StatelessWidget {
   final String descricao;
 
   const DetalhesReceitaScreen({
-    Key? key,
+    super.key,
     required this.titulo,
     required this.descricao,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
