@@ -200,7 +200,7 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
           ? () async {
               try {
                 Map<String, dynamic> refeicaoData = {
-                  'selectedDate': widget.selectedDate?.toIso8601String() ?? '',
+                  'selectedDate': widget.selectedDate ?? '',
                   'selectedTime': widget.selectedTime?.format(context) ?? '',
                   'glicemiaValue': widget.glicemiaValue ?? '',
                   'isNoGlicemia': widget.isNoGlicemia ?? false,

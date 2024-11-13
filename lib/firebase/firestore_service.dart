@@ -331,7 +331,11 @@ class FirestoreService {
   // Função para salvar a refeição no banco de dados
   Future<void> salvarRefeicao(Map<String, dynamic> refeicaoData) async {
     try {
-      await _db.collection('refeicoes').add(refeicaoData);
+      await _db
+          .collection(uid)
+          .doc('refeicoes')
+          .collection('c_refeicoes')
+          .add(refeicaoData);
       if (kDebugMode) {
         print('Refeição salva com sucesso!');
       }
@@ -348,7 +352,11 @@ class FirestoreService {
       String nomeFavorito, Map<String, dynamic> refeicaoData) async {
     try {
       refeicaoData['nomeFavorito'] = nomeFavorito;
-      await _db.collection('favoritos').add(refeicaoData);
+      await _db
+          .collection(uid)
+          .doc('favoritos')
+          .collection('c_favoritos')
+          .add(refeicaoData);
       if (kDebugMode) {
         print('Refeição favorita salva com sucesso!');
       }
@@ -360,7 +368,20 @@ class FirestoreService {
     }
   }
 
-  // Função para buscar e somar os dados nutricionais do dia
+  Future<List<Map<String, dynamic>>> getTotalNutricaoPorPeriodo(
+      DateTime startDate) async {
+    List<Map<String, dynamic>> nutrientesPorDia = [];
+
+    for (int i = 0; i < 7; i++) {
+      DateTime currentDate = startDate.subtract(Duration(days: i));
+      Map<String, double> nutrientesDia =
+          await getTotalNutricaoDoDia(currentDate);
+      nutrientesPorDia.add({'data': currentDate, ...nutrientesDia});
+    }
+
+    return nutrientesPorDia;
+  }
+
   Future<Map<String, double>> getTotalNutricaoDoDia(DateTime data) async {
     try {
       double totalCalorias = 0;
@@ -368,14 +389,14 @@ class FirestoreService {
       double totalProteinas = 0;
       double totalGorduras = 0;
 
-      // Buscar todas as refeições do dia
       QuerySnapshot refeicoesSnapshot = await _db
-          .collection('refeicoes')
-          .where('data', isGreaterThanOrEqualTo: data)
-          .where('data', isLessThan: data.add(const Duration(days: 1)))
+          .collection(uid)
+          .doc('refeicoes')
+          .collection('c_refeicoes')
+          .where('selectedDate', isGreaterThanOrEqualTo: data)
+          .where('selectedDate', isLessThan: data.add(const Duration(days: 1)))
           .get();
 
-      // Somar os valores nutricionais de cada refeição
       for (var doc in refeicoesSnapshot.docs) {
         totalCalorias += double.tryParse(doc['totalCalorias'].toString()) ?? 0;
         totalCarboidratos +=
@@ -385,7 +406,6 @@ class FirestoreService {
         totalGorduras += double.tryParse(doc['totalGorduras'].toString()) ?? 0;
       }
 
-      // Retornar os totais
       return {
         'calorias': totalCalorias,
         'carboidratos': totalCarboidratos,
@@ -486,22 +506,27 @@ class FirestoreService {
           .get();
 
       if (snapshot.docs.isEmpty) {
-        print('Nenhum documento de glicemia encontrado no Firestore.');
+        if (kDebugMode) {
+          print('Nenhum documento de glicemia encontrado no Firestore.');
+        }
       }
 
       return snapshot.docs.map((doc) {
         DateTime data = (doc['data'] as Timestamp).toDate();
         double valorGlicemia = double.tryParse(doc['valor'].toString()) ?? 0.0;
 
-        print(
-            'Data: $data, Valor: $valorGlicemia'); // Log dos dados recuperados
+        if (kDebugMode) {
+          print('Data: $data, Valor: $valorGlicemia');
+        } // Log dos dados recuperados
         return {
           'data': data,
           'valor': valorGlicemia,
         };
       }).toList();
     } catch (error) {
-      print('Erro ao buscar medições de glicemia: $error');
+      if (kDebugMode) {
+        print('Erro ao buscar medições de glicemia: $error');
+      }
       return [];
     }
   }
@@ -540,7 +565,9 @@ class FirestoreService {
         'menorPeso': menorPeso,
       };
     } catch (e) {
-      print('Erro ao buscar dados de peso: $e');
+      if (kDebugMode) {
+        print('Erro ao buscar dados de peso: $e');
+      }
       return {'pesoAtual': 0, 'maiorPeso': 0, 'menorPeso': 0};
     }
   }

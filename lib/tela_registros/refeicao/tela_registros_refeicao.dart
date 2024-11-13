@@ -39,7 +39,9 @@ class _RefeicaoScreenState extends State<RefeicaoScreen> {
     );
     if (picked != null && picked != selectedDate) {
       setState(() {
-        selectedDate = picked;
+        // Define o horário para meio-dia para evitar deslocamentos de fuso horário
+        selectedDate =
+            DateTime(picked.year, picked.month, picked.day, 12, 0, 0);
       });
     }
   }
