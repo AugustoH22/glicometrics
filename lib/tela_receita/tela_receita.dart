@@ -13,51 +13,36 @@ class ReceitaScreen extends StatefulWidget {
 
 class _ReceitaScreenState extends State<ReceitaScreen>
     with AutomaticKeepAliveClientMixin {
+      @override
+ 
   @override
   bool get wantKeepAlive => true;
-    final gemini = Gemini.instance;
-    String output = '';
+  final gemini = Gemini.instance;
+  String output = '';
 
-  final String apiKey =
-      '';
   final TextEditingController _controller = TextEditingController();
-  String _response = '';
   bool _isLoading = false;
-StreamController<Candidates> _streamController = StreamController<Candidates>.broadcast();
 
-  @override
-  void initState() {
-    super.initState();
-  
-  }
-  
+  // StreamController para gerenciar a resposta da API
+  final StreamController<String> _streamController = StreamController<String>.broadcast();
 
   Future<void> obterReceita(String input) async {
     if (input.isEmpty) return;
 
-   
-
     setState(() {
       _controller.text = '';
       _isLoading = true;
-      _response = '';
+      output = 'Pesquisando...';
     });
 
-    final msg =
-        '$input';
-    
-
-
+    final msg = input;
 
     try {
-gemini.streamGenerateContent(msg,
+    gemini.streamGenerateContent(msg).listen((value) {
 
-generationConfig: GenerationConfig(
-
-  
-)
-).listen((value) {
-
+if (output.contains('Pesquisando...')) {
+  output = '';
+}
   final ot = value.output??'';
   
   setState(() {
@@ -65,47 +50,29 @@ generationConfig: GenerationConfig(
   });
 });
 
-//     final teste = await   gemini.text(msg,
-//     generationConfig: GenerationConfig(
-//       maxOutputTokens: 300
-//     )
-//     )
-//   ;
-
-// final teste2 = teste?.toJson();
-//   log(teste?.output??'aaa');
-
-//   output = teste?.output??'';
-  //     gemini.streamGenerateContent(msg)
-  // .listen((value) {
-  //   print(value.output);
-  // }).onError((e) {
-  //   log('streamGenerateContent exception', error: e);
-  // });
-
-
-      // final response = await openAI.onChatCompletion(request: request);
       setState(() {
-        //  _response = response?.choices.last.message?.content.trim() ?? 'Erro ao processar resposta';
         _isLoading = false;
       });
     } catch (error, stacktrace) {
       debugPrint('Erro ao obter resposta: $error');
       debugPrint('Stacktrace: $stacktrace');
       setState(() {
-        _response = 'Erro de conexão ou de processamento. Tente novamente.';
+        output = 'Erro de conexão ou de processamento. Tente novamente.';
         _isLoading = false;
       });
     }
   }
+
   @override
   void dispose() {
+    _streamController.close();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
+    super.build(context);  // Importante para AutomaticKeepAliveClientMixin
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -124,19 +91,9 @@ generationConfig: GenerationConfig(
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: _response.isNotEmpty
-                  ? Text(
-                      _response,
-                      style: const TextStyle(fontSize: 16),
-                    )
-                  :  Center(
-                      child:
-                          AnimatedContainer(
-                            
-                            duration: Duration(seconds: 1),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical  ,
-                              child: Text(output.isEmpty? "Qual a boa para hoje?":output)),),),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Text(output.isEmpty?'Qual a boa ?':output))
             ),
           ),
           if (_isLoading)
