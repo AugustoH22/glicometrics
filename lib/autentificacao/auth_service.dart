@@ -5,21 +5,19 @@ class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  Future<String?> entrarUsuario(
-      {required String email, required String senha}) async {
+  Future<String?> entrarUsuario({required String email, required String senha}) async {
     try {
-      await _firebaseAuth.signInWithEmailAndPassword(
-          email: email, password: senha);
+      await _firebaseAuth.signInWithEmailAndPassword(email: email, password: senha);
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case "user-not-found":
           return "O e-mail não está cadastrado.";
         case "wrong-password":
           return "Senha incorreta.";
+        default:
+          return "Erro ao entrar: ${e.message}";
       }
-      return e.code;
     }
-
     return null;
   }
 
@@ -29,33 +27,31 @@ class AuthService {
     required String nome,
   }) async {
     try {
-      UserCredential userCredential =
-          await _firebaseAuth.createUserWithEmailAndPassword(
+      UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: senha,
       );
 
       await userCredential.user!.updateDisplayName(nome);
-      //print("Funcionou! Chegamos até essa linha!");
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case "email-already-in-use":
           return "O e-mail já está em uso.";
+        default:
+          return "Erro ao cadastrar: ${e.message}";
       }
-      return e.code;
     }
-
     return null;
   }
 
-  Future<String?> redefincaoSenha({required String email}) async {
+  Future<String?> redefinicaoSenha({required String email}) async {
     try {
       await _firebaseAuth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (e) {
       if (e.code == "user-not-found") {
         return "E-mail não cadastrado.";
       }
-      return e.code;
+      return "Erro ao enviar e-mail de redefinição: ${e.message}";
     }
     return null;
   }
@@ -63,37 +59,39 @@ class AuthService {
   Future<String?> deslogar() async {
     try {
       await _firebaseAuth.signOut();
+      await _googleSignIn.signOut();  // Desloga do Google também
     } on FirebaseAuthException catch (e) {
-      return e.code;
+      return "Erro ao deslogar: ${e.message}";
     }
-
     return null;
   }
 
   Future<String?> removerConta({required String senha}) async {
     try {
-      await _firebaseAuth.signInWithEmailAndPassword(
-        email: _firebaseAuth.currentUser!.email!,
-        password: senha,
-      );
-      await _firebaseAuth.currentUser!.delete();
+      User? user = _firebaseAuth.currentUser;
+      if (user != null) {
+        await _firebaseAuth.signInWithEmailAndPassword(
+          email: user.email!,
+          password: senha,
+        );
+        await user.delete();
+      } else {
+        return "Usuário não autenticado.";
+      }
     } on FirebaseAuthException catch (e) {
-      return e.code;
+      return "Erro ao remover conta: ${e.message}";
     }
     return null;
   }
 
   Future<String?> entrarComGoogle() async {
     try {
-      // Inicia o processo de autenticação com o Google
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         return "Usuário cancelou o login.";
       }
 
-      // Autentica no Firebase com o token do Google
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
@@ -102,8 +100,13 @@ class AuthService {
 
       await _firebaseAuth.signInWithCredential(credential);
       return null;
+    } on FirebaseAuthException catch (e) {
+      return "Erro de autenticação no Firebase: ${e.message}";
     } catch (e) {
       return "Falha ao entrar com o Google: ${e.toString()}";
     }
   }
+
+  // Função auxiliar para obter o usuário atual
+  User? get usuarioAtual => _firebaseAuth.currentUser;
 }

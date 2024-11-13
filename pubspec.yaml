@@ -45,6 +45,7 @@ dependencies:
   flutter_signin_button: ^2.0.0
   fl_chart: ^0.69.0
   syncfusion_flutter_charts: ^20.4.37
+  flutter_gemini: ^2.0.5
 
 dev_dependencies:
   flutter_test:

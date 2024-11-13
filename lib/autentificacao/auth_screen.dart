@@ -242,7 +242,7 @@ class _AuthScreenState extends State<AuthScreen> {
             TextButton(
               onPressed: () {
                 authService
-                    .redefincaoSenha(email: redefincaoSenhaController.text)
+                    .redefinicaoSenha(email: redefincaoSenhaController.text)
                     .then((String? erro) {
                   if (erro == null) {
                     showSnackBar(
