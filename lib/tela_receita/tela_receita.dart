@@ -1,5 +1,8 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
 
 class ReceitaScreen extends StatefulWidget {
   const ReceitaScreen({super.key});
@@ -11,127 +14,118 @@ class ReceitaScreen extends StatefulWidget {
 
 class _ReceitaScreenState extends State<ReceitaScreen>
     with AutomaticKeepAliveClientMixin {
+      @override
+ 
   @override
   bool get wantKeepAlive => true;
+  final gemini = Gemini.instance;
+  String output = '';
 
-  final List<Map<String, String>> _receitas = [
-    {'titulo': 'Receita 1', 'descricao': 'Descrição da receita 1'},
-    {'titulo': 'Receita 2', 'descricao': 'Descrição da receita 2'},
-    {'titulo': 'Receita 3', 'descricao': 'Descrição da receita 3'},
-  ];
+  final TextEditingController _controller = TextEditingController();
+  bool _isLoading = false;
 
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60.0),
-        child: AppBar(
-          title: const Text(
-            'Receitas',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 30,
-              fontFamily: 'Lemonada',
-              fontWeight: FontWeight.w300,
-              height: 0,
-            ),
-          ),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          flexibleSpace: Container(
-            decoration: ShapeDecoration(
-              color: const Color(0xFF1693A5),
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  width: 1,
-                  color: Colors.black.withOpacity(0.2),
-                ),
-              ),
-            ),
-          ),
-          actions: [
-  IconButton(
-    icon: FaIcon(FontAwesomeIcons.utensils), // Removido `const`
-    onPressed: () {
-      // Ação para notificações ou qualquer outra funcionalidade
-    },
-  ),
-],
+  // StreamController para gerenciar a resposta da API
+  final StreamController<String> _streamController = StreamController<String>.broadcast();
 
-        ),
-      ),
-      body: ListView.builder(
-        itemCount: _receitas.length,
-        itemBuilder: (context, index) {
-          final receita = _receitas[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: ListTile(
-              title: Text(
-                receita['titulo'] ?? '',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(receita['descricao'] ?? ''),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DetalhesReceitaScreen(
-                      titulo: receita['titulo']!,
-                      descricao: receita['descricao']!,
-                    ),
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Ação para adicionar nova receita
-        },
-        backgroundColor: const Color(0xFF1693A5),
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
+  Future<void> obterReceita(String input) async {
+    if (input.isEmpty) return;
+
+    setState(() {
+      _controller.text = '';
+      _isLoading = true;
+      output = 'Pesquisando...';
+    });
+
+    final msg = input;
+
+    try {
+    gemini.streamGenerateContent(msg).listen((value) {
+
+if (output.contains('Pesquisando...')) {
+  output = '';
 }
-
-class DetalhesReceitaScreen extends StatelessWidget {
-  final String titulo;
-  final String descricao;
-
-  const DetalhesReceitaScreen({
-    super.key,
-    required this.titulo,
-    required this.descricao,
+  final ot = value.output??'';
+  
+  setState(() {
+    output += ot.toString();
   });
+});
+
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (error, stacktrace) {
+      debugPrint('Erro ao obter resposta: $error');
+      debugPrint('Stacktrace: $stacktrace');
+      setState(() {
+        output = 'Erro de conexão ou de processamento. Tente novamente.';
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _streamController.close();
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);  // Importante para AutomaticKeepAliveClientMixin
     return Scaffold(
       appBar: AppBar(
-        title: Text(titulo),
+        title: const Text(
+          'Receitas',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 30,
+            fontFamily: 'Lemonada',
+            fontWeight: FontWeight.w300,
+          ),
+        ),
         backgroundColor: const Color(0xFF1693A5),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              titulo,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      body: Column(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Text(output.isEmpty?'Qual a boa ?':output))
             ),
-            const SizedBox(height: 16),
-            Text(
-              descricao,
-              style: const TextStyle(fontSize: 16),
+          ),
+          if (_isLoading)
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: CircularProgressIndicator(),
             ),
-          ],
-        ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: const InputDecoration(
+                      labelText: 'Manda bala',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.send),
+                  onPressed: () {
+                    obterReceita(_controller.text);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

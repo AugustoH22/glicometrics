@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:main/autentificacao/auth_screen.dart';
+import 'package:main/core/env.dart';
 import 'package:main/tela_conta/tela_conta.dart';
 import 'package:main/tela_home/tela_home.dart';
 import 'package:main/tela_receita/tela_receita.dart';
@@ -18,6 +20,8 @@ void main() async {
   );
  await initializeDateFormatting('pt_BR', null);
 
+  
+  Gemini.init(apiKey:  Env.apiKey);
   runApp(const GlicoMetricsApp());
 }
 
