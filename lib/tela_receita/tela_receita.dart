@@ -13,18 +13,19 @@ class ReceitaScreen extends StatefulWidget {
 
 class _ReceitaScreenState extends State<ReceitaScreen>
     with AutomaticKeepAliveClientMixin {
-      @override
- 
   @override
   bool get wantKeepAlive => true;
+
   final gemini = Gemini.instance;
   String output = '';
-
   final TextEditingController _controller = TextEditingController();
   bool _isLoading = false;
 
   // StreamController para gerenciar a resposta da API
   final StreamController<String> _streamController = StreamController<String>.broadcast();
+
+  // Recomendação inicial da IA
+  final String iaRecommendation = "Experimente fazer uma Torta de Maçã deliciosa!";
 
   Future<void> obterReceita(String input) async {
     if (input.isEmpty) return;
@@ -38,17 +39,16 @@ class _ReceitaScreenState extends State<ReceitaScreen>
     final msg = input;
 
     try {
-    gemini.streamGenerateContent(msg).listen((value) {
+      gemini.streamGenerateContent(msg).listen((value) {
+        if (output.contains('Pesquisando...')) {
+          output = '';
+        }
+        final ot = value.output ?? '';
 
-if (output.contains('Pesquisando...')) {
-  output = '';
-}
-  final ot = value.output??'';
-  
-  setState(() {
-    output += ot.toString();
-  });
-});
+        setState(() {
+          output += ot.toString();
+        });
+      });
 
       setState(() {
         _isLoading = false;
@@ -72,51 +72,126 @@ if (output.contains('Pesquisando...')) {
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);  // Importante para AutomaticKeepAliveClientMixin
+    super.build(context); // Importante para AutomaticKeepAliveClientMixin
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Receitas',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 30,
-            fontFamily: 'Lemonada',
-            fontWeight: FontWeight.w300,
-          ),
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Cor branca sólida
+        elevation: 0, // Remove a sombra para evitar alteração de cor
+        toolbarHeight: 100,
+        title: LayoutBuilder(
+          builder: (context, constraints) {
+            double logoSize = constraints.maxWidth * 0.4;
+            if (logoSize > 150) logoSize = 150; // Limita o tamanho máximo da logo
+            return Image.asset(
+              'lib/img/receitas_logo.png',
+              height: logoSize,
+              width: logoSize,
+              fit: BoxFit.contain,
+            );
+          },
         ),
-        backgroundColor: const Color(0xFF1693A5),
+        centerTitle: true,
       ),
       body: Column(
         children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Text(output.isEmpty?'Qual a boa ?':output))
+          const SizedBox(height: 16),
+          // Espaço para a imagem da IA e o texto personalizado "Gerar uma receita"
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                // Imagem personalizada pequena para o ícone da IA
+                Image.asset(
+                  'lib/img/IA_Icon.png', // Caminho da imagem personalizada
+                  width: 30, // Largura da imagem, similar ao ícone anterior
+                  height: 30, // Altura da imagem, similar ao ícone anterior
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  "Gerar uma receita",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
           ),
-          if (_isLoading)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: CircularProgressIndicator(),
-            ),
+          const SizedBox(height: 16),
+          // Ícone de balão de conversa com recomendação de receita da IA
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.published_with_changes_outlined, color: Colors.blue, size: 24), // Ícone de balão
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(12.0),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      iaRecommendation,
+                      style: const TextStyle(fontSize: 16, color: Colors.black87),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Caixa de resposta da IA com altura fixa e rolagem interna
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.95,
+                height: 250, // Altura fixa para a caixa de resposta
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.white, // Caixa de resposta branca
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: SingleChildScrollView(
+                  child: _buildFormattedText(
+                    output.isEmpty ? "Você pode visualizar aqui a sua receita gerada!" : output,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          // Caixa de entrada de texto e botão enviar fixados na parte inferior
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _controller,
+                    onSubmitted: (value) {
+                      obterReceita(value); // Chama a função ao pressionar Enter
+                    },
                     decoration: const InputDecoration(
-                      labelText: 'Manda bala',
+                      labelText: 'Digite a receita desejada...',
                       border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.white,
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  icon: const Icon(Icons.send),
+                  icon: const Icon(Icons.send, color: Color.fromARGB(255, 153, 54, 15)),
                   onPressed: () {
                     obterReceita(_controller.text);
                   },
@@ -124,8 +199,35 @@ if (output.contains('Pesquisando...')) {
               ],
             ),
           ),
+          const SizedBox(height: 16),
         ],
       ),
+      backgroundColor: Colors.white, // Fundo branco para combinar com AppBar e caixa de resposta
     );
+  }
+
+  // Método para construir o texto com linhas específicas em negrito e tamanho maior
+  Widget _buildFormattedText(String text) {
+    return RichText(
+      textAlign: TextAlign.left,
+      text: TextSpan(
+        children: _formatOutput(text),
+        style: const TextStyle(color: Colors.black, fontSize: 18), // Aumenta o tamanho do texto
+      ),
+    );
+  }
+
+  // Método para formatar o output, aplicando negrito nas linhas que contêm '**' e mantendo quebras de linha
+  List<TextSpan> _formatOutput(String text) {
+    return text.split('\n').map((line) {
+      if (line.contains('**')) {
+        return TextSpan(
+          text: line.replaceAll('**', '') + '\n',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17), // Aumenta o tamanho do texto em negrito
+        );
+      } else {
+        return TextSpan(text: line + '\n', style: const TextStyle(fontSize: 16)); // Aumenta o tamanho do texto normal
+      }
+    }).toList();
   }
 }
