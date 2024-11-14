@@ -425,6 +425,34 @@ class FirestoreService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getUltimasMedicoesPressao() async {
+
+    try {
+      // Busca os últimos 7 registros de pressão, ordenados pela data
+      QuerySnapshot snapshot = await _db
+          .collection(uid)
+          .doc('pressao_arterial') 
+          .collection('c_pressao_arterial')
+          .orderBy('data', descending: true)
+          .limit(7)
+          .get();
+
+      // Formata os dados
+      return snapshot.docs.map((doc) {
+        return {
+          'sistolica': doc['sistolica'],
+          'diastolica': doc['diastolica'],
+          'data': (doc['data'] as Timestamp).toDate(),
+        };
+      }).toList();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erro ao buscar medições de pressão: $e');
+      }
+      return [];
+    }
+  }
+
   // Função para buscar o histórico de registros de glicemia, pressão e peso
   Future<List<Map<String, dynamic>>> getHistoricoRegistros() async {
     try {
