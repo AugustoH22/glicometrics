@@ -8,7 +8,6 @@ class ReceitaScreen extends StatefulWidget {
   const ReceitaScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ReceitaScreenState createState() => _ReceitaScreenState();
 }
 
@@ -19,14 +18,36 @@ class _ReceitaScreenState extends State<ReceitaScreen>
 
   final gemini = Gemini.instance;
   String output = '';
+  String iaRecommendation = "Carregando recomendação..."; // Texto padrão ao carregar
   final TextEditingController _controller = TextEditingController();
   bool _isLoading = false;
+  String promptMessage = "Não gerou sua receita ainda? Gere agora!"; // Texto dinâmico acima da caixa de resposta
 
   // StreamController para gerenciar a resposta da API
   final StreamController<String> _streamController = StreamController<String>.broadcast();
 
-  // Recomendação inicial da IA
-  final String iaRecommendation = "Experimente fazer uma Torta de Maçã deliciosa!";
+  // Método para obter a recomendação inicial da IA
+  Future<void> obterRecomendacao() async {
+    setState(() {
+      iaRecommendation = "Carregando recomendação..."; // Mostra o status enquanto carrega
+    });
+
+    try {
+      // Solicita a recomendação inicial à IA
+      gemini.streamGenerateContent("Me diga um nome de uma refeição bem gostosa que pode ser feita por diabeticos").listen((value) {
+        setState(() {
+          iaRecommendation = (value.output != null)
+              ? "Que tal ${value.output}?"
+              : "Recomendação indisponível no momento.";
+        });
+      });
+    } catch (error) {
+      debugPrint('Erro ao obter recomendação: $error');
+      setState(() {
+        iaRecommendation = "Erro ao obter recomendação. Tente novamente mais tarde.";
+      });
+    }
+  }
 
   Future<void> obterReceita(String input) async {
     if (input.isEmpty) return;
@@ -35,6 +56,7 @@ class _ReceitaScreenState extends State<ReceitaScreen>
       _controller.text = '';
       _isLoading = true;
       output = 'Pesquisando...';
+      promptMessage = "Pedido: $input"; // Atualiza o texto com o prompt do usuário
     });
 
     final msg = input;
@@ -62,6 +84,12 @@ class _ReceitaScreenState extends State<ReceitaScreen>
         _isLoading = false;
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    obterRecomendacao(); // Obtém a recomendação inicial ao iniciar o widget
   }
 
   @override
@@ -102,7 +130,6 @@ class _ReceitaScreenState extends State<ReceitaScreen>
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               children: [
-                // Imagem personalizada pequena para o ícone da IA
                 Image.asset(
                   'lib/img/IA_Icon.png', // Caminho da imagem personalizada
                   width: 30, // Largura da imagem, similar ao ícone anterior
@@ -123,18 +150,32 @@ class _ReceitaScreenState extends State<ReceitaScreen>
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.published_with_changes_outlined, color: Colors.blue, size: 24), // Ícone de balão
+                GestureDetector(
+                  onTap: obterRecomendacao, // Gera nova recomendação ao clicar no ícone
+                  child: Icon(Icons.published_with_changes_outlined, color: Colors.blue, size: 24),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(12.0),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[50],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      iaRecommendation,
-                      style: const TextStyle(fontSize: 16, color: Colors.black87),
+                  child: GestureDetector(
+                    onTap: () {
+                      // Copia a recomendação para a caixa de pesquisa
+                      _controller.text = iaRecommendation;
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      height: 80, // Altura fixa para a caixa de recomendação
+                      padding: const EdgeInsets.all(12.0),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[50],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: Text(
+                          iaRecommendation,
+                          style: const TextStyle(fontSize: 16, color: Colors.black87),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -142,6 +183,15 @@ class _ReceitaScreenState extends State<ReceitaScreen>
             ),
           ),
           const SizedBox(height: 20),
+          // Texto dinâmico acima da caixa de resposta da IA
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              promptMessage,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+            ),
+          ),
+          const SizedBox(height: 5),
           // Caixa de resposta da IA com altura fixa e rolagem interna
           Expanded(
             child: SingleChildScrollView(
@@ -224,7 +274,7 @@ class _ReceitaScreenState extends State<ReceitaScreen>
       if (line.contains('**')) {
         return TextSpan(
           text: line.replaceAll('**', '') + '\n',
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17), // Aumenta o tamanho do texto em negrito
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), // Aumenta o tamanho do texto em negrito
         );
       } else {
         return TextSpan(text: line + '\n', style: const TextStyle(fontSize: 16)); // Aumenta o tamanho do texto normal
