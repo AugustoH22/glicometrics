@@ -4,7 +4,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:main/firebase/firestore_service.dart';
 import 'package:main/tela_home/widgets/graficos_linha.dart';
-import 'package:main/tela_home/widgets/historico_registro.dart';
 import 'package:main/tela_home/widgets/medicoes_widget.dart';
 import 'package:main/tela_home/widgets/refeicoes_widget.dart';
 
@@ -19,7 +18,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final FirestoreService firebaseService = FirestoreService();
   
   // Variáveis para armazenar os dados
-  List<Map<String, dynamic>> _historicoRegistros = [];
   List<Map<String, dynamic>> _data = [];
   Map<String, double>? _pesoData;
   List<Map<String, dynamic>> _nutricaoDoDia = [];
@@ -42,7 +40,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _buscarDados() async {
     DateTime hoje = DateTime.now();
-    _historicoRegistros = await firebaseService.getHistoricoRegistros();
     _nutricaoDoDia = await firebaseService.getTotalNutricaoPorPeriodo(hoje);
     _ultimaPressao = await firebaseService.getUltimoRegistroPressao();
     _refeicoesDoDia = await firebaseService.getRefeicoesDoDia();
@@ -50,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _pesoData = await firebaseService.getPesoData();
     _ultimasPressao = await firebaseService.getUltimasMedicoesPressao();
     
+
     List<FlSpot> spots = _data.map((entry) {
       DateTime data = entry['data'];
       double valorGlicemia = entry['valor'];
@@ -97,13 +95,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ultimaPressao: _ultimaPressao,
                       ultimasPressao: _ultimasPressao,
                     ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Meus Registros',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 16),
-                    HistoricoRegistros(historicoRegistros: _historicoRegistros),
                     const SizedBox(height: 20),
                     const Text(
                       'Minhas Refeições',

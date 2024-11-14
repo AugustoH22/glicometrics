@@ -3,7 +3,6 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 
-
 class MedicoesWidget extends StatelessWidget {
   final double pesoAtual;
   final double maiorPeso;
@@ -14,7 +13,7 @@ class MedicoesWidget extends StatelessWidget {
   final VoidCallback alterarAltura;
   final List<Map<String, dynamic>>? ultimasPressao;
 
-  const MedicoesWidget({
+  MedicoesWidget({
     super.key,
     required this.pesoAtual,
     required this.maiorPeso,
@@ -26,8 +25,23 @@ class MedicoesWidget extends StatelessWidget {
     this.ultimasPressao,
   });
 
+  final List<Color> colors = [
+    Colors.red,
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.purple,
+    Colors.yellow,
+    Colors.teal,
+  ];
+
   @override
   Widget build(BuildContext context) {
+    List<Map<String, dynamic>> sortedPressao =
+        List.from(ultimasPressao as Iterable);
+    sortedPressao.sort(
+        (a, b) => (a['data'] as DateTime).compareTo(b['data'] as DateTime));
+
     return Column(
       children: [
         const SizedBox(height: 20),
@@ -102,7 +116,8 @@ class MedicoesWidget extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 20),
+        const SizedBox(height: 16),
 
         Container(
           height: 300,
@@ -122,67 +137,167 @@ class MedicoesWidget extends StatelessWidget {
               width: 1,
             ),
           ),
-          child: ultimaPressao!.isEmpty
+          child: ultimasPressao!.isEmpty
               ? const Center(child: Text('Sem dados de pressão arterial'))
-              : Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SfCartesianChart(
-                    primaryXAxis: CategoryAxis(
-                      title: AxisTitle(text: 'Hora'),
-                      majorGridLines: const MajorGridLines(width: 0),
-                      labelRotation: -45,
+              : Column(
+                  children: [
+                    // Exibe a última medição de Sistólica e Diastólica no topo
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Column(
+                            children: [
+                              const Text(
+                                'Sistólica',
+                                style:
+                                    TextStyle(fontSize: 14, color: Colors.grey),
+                              ),
+                              Text(
+                                '${ultimaPressao?['sistolica'] ?? 'N/A'}',
+                                style: const TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.bold),
+                              ),
+                              const Text(
+                                'mmHg',
+                                style:
+                                    TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              const Text(
+                                'Diastólica',
+                                style:
+                                    TextStyle(fontSize: 14, color: Colors.grey),
+                              ),
+                              Text(
+                                '${ultimaPressao?['diastolica'] ?? 'N/A'}',
+                                style: const TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.bold),
+                              ),
+                              const Text(
+                                'mmHg',
+                                style:
+                                    TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                    primaryYAxis: NumericAxis(
-                      title: AxisTitle(text: 'Pressão (mmHg)'),
-                      minimum: 40,
-                      maximum: 200,
-                      interval: 20,
-                    ),
-                    tooltipBehavior: TooltipBehavior(enable: true),
-                    series: <ChartSeries>[
-                      RangeColumnSeries<Map<String, dynamic>, String>(
-                        dataSource: ultimasPressao ?? [],
-                        xValueMapper: (Map<String, dynamic> data, _) =>
-                            DateFormat('H a', 'pt_BR').format(data['data']),
-                        lowValueMapper: (Map<String, dynamic> data, _) =>
-                            data['diastolica'],
-                        highValueMapper: (Map<String, dynamic> data, _) =>
-                            data['sistolica'],
-                        name: 'Pressão',
-                        color: Colors.green,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(6)),
-                        dataLabelSettings: DataLabelSettings(
-                          isVisible: true,
-                          textStyle: const TextStyle(fontSize: 10),
-                          labelAlignment: ChartDataLabelAlignment.top,
-                          builder: (dynamic data, dynamic point, dynamic series,
-                              int pointIndex, int seriesIndex) {
-                            return Column(
-                              children: [
-                                Text(
-                                  '${point.high.toInt()}',
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                                const SizedBox(
-                                    height: 50), // Espaço entre os rótulos
-                                Text(
-                                  '${point.low.toInt()}',
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: SfCartesianChart(
+                          margin: const EdgeInsets.all(
+                              0), // Reduz a margem ao redor do gráfico
+                          plotAreaBorderWidth: 0,
+                          primaryXAxis: CategoryAxis(
+                            majorGridLines: const MajorGridLines(width: 0),
+                            labelRotation: -45,
+                            labelIntersectAction:
+                                AxisLabelIntersectAction.multipleRows,
+                            labelStyle: const TextStyle(
+                              fontSize: 9,
+                            ),
+                          ),
+                          primaryYAxis: NumericAxis(
+                            minimum: 0,
+                            maximum: 240,
+                            interval: 40,
+                          ),
+                          tooltipBehavior: TooltipBehavior(enable: true),
+                          series: <ChartSeries>[
+                            // Série para as barras de pressão arterial
+                            RangeColumnSeries<Map<String, dynamic>, String>(
+                              dataSource: sortedPressao,
+                              xValueMapper:
+                                  (Map<String, dynamic> data, int index) {
+                                DateTime dateTime = data['data'] as DateTime;
+                                // ignore: prefer_interpolation_to_compose_strings
+                                return DateFormat('dd/MM').format(dateTime) +
+                                    '\n' +
+                                    DateFormat('HH:mm').format(dateTime);
+                              },
+                              lowValueMapper: (Map<String, dynamic> data, _) =>
+                                  data['diastolica'],
+                              highValueMapper: (Map<String, dynamic> data, _) =>
+                                  data['sistolica'],
+                              name: 'Pressão',
+                              color: Colors.green,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
+                              width: 0.3,
+                              pointColorMapper:
+                                  (Map<String, dynamic> data, int index) =>
+                                      colors[index % colors.length],
+                            ),
+                            // Série de pontos transparentes para exibir os valores sistólica
+                            ScatterSeries<Map<String, dynamic>, String>(
+                              dataSource: sortedPressao,
+                              xValueMapper: (Map<String, dynamic> data, _) =>
+                                  DateFormat('dd/MM\nHH:mm')
+                                      .format(data['data']),
+                              yValueMapper: (Map<String, dynamic> data, _) =>
+                                  data['sistolica']?.toDouble(),
+                              markerSettings: const MarkerSettings(
+                                isVisible: true,
+                                color: Colors.transparent,
+                                width: 0,
+                                height: 0,
+                              ),
+                              dataLabelSettings: DataLabelSettings(
+                                isVisible: true,
+                                labelAlignment: ChartDataLabelAlignment.top,
+                                builder: (data, point, series, pointIndex,
+                                    seriesIndex) {
+                                  return Text(
+                                    '${data['sistolica']}',
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 10,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            // Série de pontos transparentes para exibir os valores diastólica
+                            ScatterSeries<Map<String, dynamic>, String>(
+                              dataSource: sortedPressao,
+                              xValueMapper: (Map<String, dynamic> data, _) =>
+                                  DateFormat('dd/MM\nHH:mm')
+                                      .format(data['data']),
+                              yValueMapper: (Map<String, dynamic> data, _) =>
+                                  data['diastolica']?.toDouble(),
+                              markerSettings: const MarkerSettings(
+                                isVisible: true,
+                                color: Colors.transparent,
+                                width: 0,
+                                height: 0,
+                              ),
+                              dataLabelSettings: DataLabelSettings(
+                                isVisible: true,
+                                labelAlignment: ChartDataLabelAlignment.bottom,
+                                builder: (data, point, series, pointIndex,
+                                    seriesIndex) {
+                                  return Text(
+                                    '${data['diastolica']}',
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 10,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
         ),
       ],
@@ -241,4 +356,3 @@ class MedicoesWidget extends StatelessWidget {
     return "Obesidade";
   }
 }
-
