@@ -111,20 +111,20 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.home_sharp),
+            label: 'Página Inicial',
           ),
           BottomNavigationBarItem(
             icon: FaIcon(FontAwesomeIcons.conciergeBell),
-            label: 'Receita',
+            label: 'Receitas',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.list),
+            icon: Icon(Icons.app_registration_rounded),
             label: 'Registros',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Conta',
+            icon: Icon(Icons.account_circle_sharp),
+            label: 'Minha Conta',
           ),
         ],
         currentIndex: _selectedIndex,
