@@ -76,6 +76,7 @@ flutter:
     - lib/img/receitas_logo.png
     - lib/img/Banner.png
     - lib/img/IA_Icon.png
+    - lib/img/registros_logo.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
