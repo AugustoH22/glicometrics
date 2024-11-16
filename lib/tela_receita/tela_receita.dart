@@ -190,7 +190,7 @@ class _ReceitaScreenState extends State<ReceitaScreen>
                       GestureDetector(
                         onTap: obterRecomendacao,
                         child: const Icon(
-                          Icons.published_with_changes_rounded,
+                          Icons.autorenew_sharp,
                           color: Colors.white,
                           size: 24,
                         ),
