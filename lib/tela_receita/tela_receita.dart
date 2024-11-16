@@ -1,13 +1,13 @@
 import 'dart:async';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Para copiar texto para a área de transferência
 import 'package:flutter_gemini/flutter_gemini.dart';
 
 class ReceitaScreen extends StatefulWidget {
   const ReceitaScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ReceitaScreenState createState() => _ReceitaScreenState();
 }
 
@@ -18,27 +18,43 @@ class _ReceitaScreenState extends State<ReceitaScreen>
 
   final gemini = Gemini.instance;
   String output = '';
-  String iaRecommendation = "Carregando recomendação..."; // Texto padrão ao carregar
+  String iaRecommendation = "Carregando recomendação...";
   final TextEditingController _controller = TextEditingController();
   bool _isLoading = false;
-  String promptMessage = "Não gerou sua receita ainda? Gere agora!"; // Texto dinâmico acima da caixa de resposta
+  String promptMessage = "Faça sua pesquisa!";
 
-  // StreamController para gerenciar a resposta da API
-  final StreamController<String> _streamController = StreamController<String>.broadcast();
+  // Método para verificar se uma linha contém `**` e formatar o texto dinamicamente
+  Widget _buildFormattedText(String text) {
+    return RichText(
+      textAlign: TextAlign.left,
+      text: TextSpan(
+        children: text.split('\n').map((line) {
+          if (line.contains('**')) {
+            return TextSpan(
+              text: line.replaceAll('**', '') + '\n',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            );
+          } else {
+            return TextSpan(
+              text: line + '\n',
+              style: const TextStyle(fontWeight: FontWeight.normal),
+            );
+          }
+        }).toList(),
+        style: const TextStyle(color: Colors.black, fontSize: 16),
+      ),
+    );
+  }
 
-  // Método para obter a recomendação inicial da IA
   Future<void> obterRecomendacao() async {
     setState(() {
-      iaRecommendation = "Carregando recomendação..."; // Mostra o status enquanto carrega
+      iaRecommendation = "Carregando recomendação...";
     });
 
     try {
-      // Solicita a recomendação inicial à IA
-      gemini.streamGenerateContent("Me diga um nome de uma refeição bem gostosa que pode ser feita por diabeticos").listen((value) {
+      gemini.streamGenerateContent("Me diga apenas o nome de uma refeição bem gostosa que pode ser feita por diabeticos, sem receita").listen((value) {
         setState(() {
-          iaRecommendation = (value.output != null)
-              ? "Que tal ${value.output}?"
-              : "Recomendação indisponível no momento.";
+          iaRecommendation = value.output ?? "Recomendação indisponível no momento.";
         });
       });
     } catch (error) {
@@ -55,21 +71,16 @@ class _ReceitaScreenState extends State<ReceitaScreen>
     setState(() {
       _controller.text = '';
       _isLoading = true;
-      output = 'Pesquisando...';
-      promptMessage = "Pedido: $input"; // Atualiza o texto com o prompt do usuário
+      output = '';
+      promptMessage = "Pedido: $input";
     });
 
     final msg = input;
 
     try {
       gemini.streamGenerateContent(msg).listen((value) {
-        if (output.contains('Pesquisando...')) {
-          output = '';
-        }
-        final ot = value.output ?? '';
-
         setState(() {
-          output += ot.toString();
+          output += value.output ?? '';
         });
       });
 
@@ -89,29 +100,28 @@ class _ReceitaScreenState extends State<ReceitaScreen>
   @override
   void initState() {
     super.initState();
-    obterRecomendacao(); // Obtém a recomendação inicial ao iniciar o widget
+    obterRecomendacao();
   }
 
   @override
   void dispose() {
-    _streamController.close();
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Importante para AutomaticKeepAliveClientMixin
+    super.build(context);
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Cor branca sólida
-        elevation: 0, // Remove a sombra para evitar alteração de cor
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        elevation: 0,
         toolbarHeight: 100,
         title: LayoutBuilder(
           builder: (context, constraints) {
             double logoSize = constraints.maxWidth * 0.4;
-            if (logoSize > 150) logoSize = 150; // Limita o tamanho máximo da logo
+            if (logoSize > 150) logoSize = 150;
             return Image.asset(
               'lib/img/receitas_logo.png',
               height: logoSize,
@@ -122,163 +132,157 @@ class _ReceitaScreenState extends State<ReceitaScreen>
         ),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 16),
-          // Espaço para a imagem da IA e o texto personalizado "Gerar uma receita"
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                Image.asset(
-                  'lib/img/IA_Icon.png', // Caminho da imagem personalizada
-                  width: 30, // Largura da imagem, similar ao ícone anterior
-                  height: 30, // Altura da imagem, similar ao ícone anterior
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  "Gerar uma receita",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  Image.asset(
+                    'lib/img/IA_Icon.png',
+                    width: 30,
+                    height: 30,
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    "Gerar uma receita com IA",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          // Ícone de balão de conversa com recomendação de receita da IA
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: obterRecomendacao, // Gera nova recomendação ao clicar no ícone
-                  child: Icon(Icons.published_with_changes_outlined, color: Colors.blue, size: 24),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      // Copia a recomendação para a caixa de pesquisa
-                      _controller.text = iaRecommendation;
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      height: 80, // Altura fixa para a caixa de recomendação
-                      padding: const EdgeInsets.all(12.0),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        borderRadius: BorderRadius.circular(8),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: GestureDetector(
+                onTap: () {
+                  _controller.text = iaRecommendation;
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                  width: double.infinity,
+                  height: 80,
+                  padding: const EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF6EC1E4), Color(0xFF3A93D5)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.withOpacity(0.3),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
                       ),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Text(
-                          iaRecommendation,
-                          style: const TextStyle(fontSize: 16, color: Colors.black87),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: _buildFormattedText(iaRecommendation),
+                      ),
+                      GestureDetector(
+                        onTap: obterRecomendacao,
+                        child: const Icon(
+                          Icons.published_with_changes_rounded,
+                          color: Colors.white,
+                          size: 24,
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-          // Texto dinâmico acima da caixa de resposta da IA
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              promptMessage,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                promptMessage,
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+              ),
             ),
-          ),
-          const SizedBox(height: 5),
-          // Caixa de resposta da IA com altura fixa e rolagem interna
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+            const SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Container(
-                width: MediaQuery.of(context).size.width * 0.95,
-                height: 250, // Altura fixa para a caixa de resposta
+                width: double.infinity,
+                height: 350,
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  color: Colors.white, // Caixa de resposta branca
+                  color: const Color.fromARGB(255, 255, 255, 255),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.1),
-                      spreadRadius: 2,
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                child: SingleChildScrollView(
-                  child: _buildFormattedText(
-                    output.isEmpty ? "Você pode visualizar aqui a sua receita gerada!" : output,
-                  ),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: _buildFormattedText(output),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: IconButton(
+                        icon: const Icon(Icons.copy, color: Colors.blue),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: output));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Texto copiado para a área de transferência!'),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 10),
-          // Caixa de entrada de texto e botão enviar fixados na parte inferior
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    onSubmitted: (value) {
-                      obterReceita(value); // Chama a função ao pressionar Enter
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Digite a receita desejada...',
-                      border: OutlineInputBorder(),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                  ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _controller,
+                onSubmitted: (value) {
+                  obterReceita(value);
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Digite aqui a receita desejada...',
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.white,
                 ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.send, color: Color.fromARGB(255, 153, 54, 15)),
-                  onPressed: () {
-                    obterReceita(_controller.text);
-                  },
-                ),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-        ],
+            const SizedBox(width: 8),
+            IconButton(
+              icon: const Icon(Icons.send, color: Color.fromARGB(255, 14, 177, 247)),
+              onPressed: () {
+                obterReceita(_controller.text);
+              },
+            ),
+          ],
+        ),
       ),
-      backgroundColor: Colors.white, // Fundo branco para combinar com AppBar e caixa de resposta
+      backgroundColor: Colors.white,
     );
-  }
-
-  // Método para construir o texto com linhas específicas em negrito e tamanho maior
-  Widget _buildFormattedText(String text) {
-    return RichText(
-      textAlign: TextAlign.left,
-      text: TextSpan(
-        children: _formatOutput(text),
-        style: const TextStyle(color: Colors.black, fontSize: 18), // Aumenta o tamanho do texto
-      ),
-    );
-  }
-
-  // Método para formatar o output, aplicando negrito nas linhas que contêm '**' e mantendo quebras de linha
-  List<TextSpan> _formatOutput(String text) {
-    return text.split('\n').map((line) {
-      if (line.contains('**')) {
-        return TextSpan(
-          text: line.replaceAll('**', '') + '\n',
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), // Aumenta o tamanho do texto em negrito
-        );
-      } else {
-        return TextSpan(text: line + '\n', style: const TextStyle(fontSize: 16)); // Aumenta o tamanho do texto normal
-      }
-    }).toList();
   }
 }
