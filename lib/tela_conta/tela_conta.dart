@@ -21,6 +21,7 @@ class _ContaScreenState extends State<ContaScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: Column(
         children: [
           Container(

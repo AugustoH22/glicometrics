@@ -607,7 +607,6 @@ class FirestoreService {
           .collection(uid)
           .doc('refeicoes')
           .collection('c_refeicoes')
-          .orderBy('hora', descending: false)
           .get();
 
       return querySnapshot.docs

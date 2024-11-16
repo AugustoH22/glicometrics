@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
@@ -44,25 +45,27 @@ class MedicoesWidget extends StatelessWidget {
 
     return Column(
       children: [
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
+        Text(
+          'Peso',
+          style: GoogleFonts.cookie(fontSize: 30),
+        ),
         // Peso Atual, Maior Peso, e Menor Peso
         Container(
+          width: MediaQuery.of(context).size.width * 0.95,
           padding: const EdgeInsets.all(16.0),
-          margin: const EdgeInsets.symmetric(horizontal: 16.0),
+          margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 2,
+                blurRadius: 8,
+                offset: const Offset(0, 4),
               ),
             ],
-            border: Border.all(
-              color: Colors.black.withOpacity(0.2),
-              width: 1,
-            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -81,14 +84,14 @@ class MedicoesWidget extends StatelessWidget {
               Text(
                 imc.toStringAsFixed(1),
                 style:
-                    const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+                     GoogleFonts.cookie(fontSize: 40, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
 
               // Classificação do IMC
               Text(
                 _getIMCClassificacao(imc),
-                style: const TextStyle(fontSize: 16, color: Colors.orange),
+                style:  GoogleFonts.cookie(fontSize: 20, color: Colors.orange),
               ),
               const SizedBox(height: 16),
 
@@ -97,45 +100,62 @@ class MedicoesWidget extends StatelessWidget {
               const SizedBox(height: 16),
 
               // Container para a altura
-              InkWell(
-                onTap: alterarAltura,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
+              Row(
+                children: [
+                  Text(
+                    "Altura:",
+                    style:  GoogleFonts.cookie(fontSize: 24),
                   ),
-                  child: Text(
-                    "${altura.toInt()} cm",
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
+                  const Spacer(), // Adiciona espaço flexível entre os itens
+                  InkWell(
+                    onTap: alterarAltura,
+                    child: Container(
+                      height: 30,
+                      width: 50,
+                      alignment: Alignment
+                          .center, // Centraliza o texto dentro do Container
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        "${altura.toInt()}",
+                        style:  GoogleFonts.cookie(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(
+                      width: 5), // Espaço entre o Container e o texto "cm"
+                  Text(
+                    "cm",
+                    style:  GoogleFonts.cookie(fontSize: 24),
+                  ),
+                ],
               ),
             ],
           ),
         ),
-        const SizedBox(height: 20),
         const SizedBox(height: 16),
-
+        Text(
+          'Pressão Arterial',
+          style: GoogleFonts.cookie(fontSize: 30),
+        ),
         Container(
+          width: MediaQuery.of(context).size.width * 0.95,
           height: 300,
-          margin: const EdgeInsets.symmetric(horizontal: 16.0),
+          margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 2,
+                blurRadius: 8,
+                offset: const Offset(0, 4),
               ),
             ],
-            border: Border.all(
-              color: Colors.black.withOpacity(0.2),
-              width: 1,
-            ),
           ),
           child: ultimasPressao!.isEmpty
               ? const Center(child: Text('Sem dados de pressão arterial'))
@@ -149,39 +169,39 @@ class MedicoesWidget extends StatelessWidget {
                         children: [
                           Column(
                             children: [
-                              const Text(
+                              Text(
                                 'Sistólica',
                                 style:
-                                    TextStyle(fontSize: 14, color: Colors.grey),
+                                    GoogleFonts.cookie(fontSize: 20, color: Colors.grey),
                               ),
                               Text(
                                 '${ultimaPressao?['sistolica'] ?? 'N/A'}',
-                                style: const TextStyle(
+                                style: GoogleFonts.cookie(
                                     fontSize: 24, fontWeight: FontWeight.bold),
                               ),
-                              const Text(
+                              Text(
                                 'mmHg',
                                 style:
-                                    TextStyle(fontSize: 12, color: Colors.grey),
+                                    GoogleFonts.cookie(fontSize: 16, color: Colors.grey),
                               ),
                             ],
                           ),
                           Column(
                             children: [
-                              const Text(
+                              Text(
                                 'Diastólica',
                                 style:
-                                    TextStyle(fontSize: 14, color: Colors.grey),
+                                     GoogleFonts.cookie(fontSize: 20, color: Colors.grey),
                               ),
                               Text(
                                 '${ultimaPressao?['diastolica'] ?? 'N/A'}',
-                                style: const TextStyle(
+                                style:  GoogleFonts.cookie(
                                     fontSize: 24, fontWeight: FontWeight.bold),
                               ),
-                              const Text(
+                              Text(
                                 'mmHg',
                                 style:
-                                    TextStyle(fontSize: 12, color: Colors.grey),
+                                     GoogleFonts.cookie(fontSize: 16, color: Colors.grey),
                               ),
                             ],
                           ),
@@ -200,14 +220,17 @@ class MedicoesWidget extends StatelessWidget {
                             labelRotation: -45,
                             labelIntersectAction:
                                 AxisLabelIntersectAction.multipleRows,
-                            labelStyle: const TextStyle(
-                              fontSize: 9,
+                            labelStyle: GoogleFonts.cookie(
+                              fontSize: 12,
                             ),
                           ),
                           primaryYAxis: NumericAxis(
                             minimum: 0,
                             maximum: 240,
                             interval: 40,
+                            labelStyle: GoogleFonts.cookie(
+                              fontSize: 12,
+                            )
                           ),
                           tooltipBehavior: TooltipBehavior(enable: true),
                           series: <ChartSeries>[
@@ -256,9 +279,10 @@ class MedicoesWidget extends StatelessWidget {
                                     seriesIndex) {
                                   return Text(
                                     '${data['sistolica']}',
-                                    style: const TextStyle(
+                                    style:  GoogleFonts.cookie(
                                       color: Colors.black,
                                       fontSize: 10,
+                                      fontWeight: FontWeight.bold
                                     ),
                                   );
                                 },
@@ -285,9 +309,10 @@ class MedicoesWidget extends StatelessWidget {
                                     seriesIndex) {
                                   return Text(
                                     '${data['diastolica']}',
-                                    style: const TextStyle(
+                                    style:  GoogleFonts.cookie(
                                       color: Colors.black,
                                       fontSize: 10,
+                                      fontWeight: FontWeight.bold
                                     ),
                                   );
                                 },
@@ -310,9 +335,9 @@ class MedicoesWidget extends StatelessWidget {
       children: [
         Text(
           valor.toStringAsFixed(1),
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style:  GoogleFonts.cookie(fontSize: 28, fontWeight: FontWeight.bold),
         ),
-        Text(label, style: const TextStyle(fontSize: 16)),
+        Text(label, style: GoogleFonts.cookie(fontSize: 18, color: Colors.grey)),
       ],
     );
   }

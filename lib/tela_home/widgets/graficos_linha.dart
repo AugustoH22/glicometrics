@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class GraficosLinha extends StatelessWidget {
@@ -17,24 +18,26 @@ class GraficosLinha extends StatelessWidget {
     return Column(
       children: [
         // Gráfico de Glicemia
+        const SizedBox(height: 16),
+        Text(
+          'Glicemia',
+          style: GoogleFonts.cookie(fontSize: 30),
+        ),
         Container(
-          width: MediaQuery.of(context).size.width * 0.9,
+          width: MediaQuery.of(context).size.width * 0.95,
           height: 300,
-          margin: const EdgeInsets.all(16),
+          margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 2,
+                blurRadius: 8,
+                offset: const Offset(0, 4),
               ),
             ],
-            border: Border.all(
-              color: Colors.black.withOpacity(0.2),
-              width: 1,
-            ),
           ),
           child: glicemiaSpots.isEmpty
               ? const Center(child: Text('Sem dados de glicemia'))
@@ -66,13 +69,13 @@ class GraficosLinha extends StatelessWidget {
                                 children: [
                                   Text(
                                     '${value.toInt()}',
-                                    style: const TextStyle(
-                                        color: Colors.black, fontSize: 10),
+                                    style: GoogleFonts.cookie(
+                                        color: Colors.black, fontSize: 12),
                                   ),
-                                  const Text(
+                                  Text(
                                     'mg/dL',
-                                    style: TextStyle(
-                                        color: Colors.black, fontSize: 10),
+                                    style: GoogleFonts.cookie(
+                                        color: Colors.black, fontSize: 12),
                                   ),
                                 ],
                               );
@@ -89,8 +92,8 @@ class GraficosLinha extends StatelessWidget {
                                   .subtract(Duration(days: 30 - value.toInt()));
                               return Text(
                                 "${date.day}/${date.month}",
-                                style: const TextStyle(
-                                    color: Colors.black, fontSize: 12),
+                                style: GoogleFonts.cookie(
+                                    color: Colors.black, fontSize: 14),
                               );
                             },
                           ),
@@ -121,27 +124,28 @@ class GraficosLinha extends StatelessWidget {
                   ),
                 ),
         ),
-
+        const SizedBox(height: 16),
         // Gráfico de Nutrição
         // Gráfico de Nutrição dos últimos 7 dias
+        Text(
+          'Alimentação',
+          style: GoogleFonts.cookie(fontSize: 30),
+        ),
         Container(
-          width: MediaQuery.of(context).size.width * 0.9,
+          width: MediaQuery.of(context).size.width * 0.95,
           height: 300,
-          margin: const EdgeInsets.all(16),
+          margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 2,
+                blurRadius: 8,
+                offset: const Offset(0, 4),
               ),
             ],
-            border: Border.all(
-              color: Colors.black.withOpacity(0.2),
-              width: 1,
-            ),
           ),
           child: Padding(
             padding: const EdgeInsets.only(
@@ -151,10 +155,13 @@ class GraficosLinha extends StatelessWidget {
               bottom: 5.0, // margem na parte inferior
             ),
             child: SfCartesianChart(
-              primaryXAxis: CategoryAxis(),
+              primaryXAxis: CategoryAxis(
+                labelStyle: GoogleFonts.cookie(),
+              ),
               primaryYAxis: NumericAxis(
                 name: 'Calorias',
-                title: AxisTitle(text: 'Calorias (kcal)'),
+                title: AxisTitle(text: 'Calorias (kcal)', textStyle: GoogleFonts.cookie()),
+                labelStyle: GoogleFonts.cookie(),
                 opposedPosition: false,
                 interval: 100,
                 minimum: 0,
@@ -162,17 +169,19 @@ class GraficosLinha extends StatelessWidget {
               axes: [
                 NumericAxis(
                   name: 'Nutrientes',
-                  title: AxisTitle(text: 'Nutrientes (g)'),
+                  title: AxisTitle(text: 'Nutrientes (g)', textStyle: GoogleFonts.cookie()),
+                  labelStyle: GoogleFonts.cookie(),
                   opposedPosition: true,
                   interval: 20,
                   minimum: 0,
                 ),
               ],
-              legend: Legend(isVisible: true, position: LegendPosition.bottom),
+              legend: Legend(isVisible: true, position: LegendPosition.bottom, textStyle: GoogleFonts.cookie()),
               tooltipBehavior: TooltipBehavior(enable: true),
               series: <ChartSeries>[
                 // Série de Calorias, associada ao eixo "Calorias"
                 LineSeries<Map<String, dynamic>, String>(
+                  
                   dataSource: nutrientesPorDia.reversed.toList(),
                   xValueMapper: (Map<String, dynamic> data, _) =>
                       _getFormattedDate((data['data'] as DateTime)),

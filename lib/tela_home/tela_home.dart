@@ -2,6 +2,7 @@
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:main/firebase/firestore_service.dart';
 import 'package:main/tela_home/widgets/graficos_linha.dart';
 import 'package:main/tela_home/widgets/medicoes_widget.dart';
@@ -68,8 +69,24 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
-        title: const Text('GlicoMetrics'),
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Cor branca sólida
+        elevation: 0, // Remove a sombra para evitar alteração de cor
+        toolbarHeight: 100,
+        title: LayoutBuilder(
+          builder: (context, constraints) {
+            double logoSize = constraints.maxWidth * 0.4;
+            if (logoSize > 150) logoSize = 150; // Limita o tamanho máximo da logo
+            return Image.asset(
+              'lib/img/receitas_logo.png',
+              height: logoSize,
+              width: logoSize,
+              fit: BoxFit.contain,
+            );
+          },
+        ),
+        centerTitle: true,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -79,11 +96,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Minhas Medições',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    const SizedBox(height: 16),
+                    Text(
+                      ' Minhas Medições',
+                      style: GoogleFonts.cookie(fontSize: 34),
                     ),
-                    const SizedBox(height: 20),
                     GraficosLinha(nutrientesPorDia: _nutricaoDoDia, glicemiaSpots: glicemiaSpots),
                     MedicoesWidget(
                       pesoAtual: pesoAtual,
@@ -96,9 +113,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ultimasPressao: _ultimasPressao,
                     ),
                     const SizedBox(height: 20),
-                    const Text(
-                      'Minhas Refeições',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    Text(
+                      ' Minhas Refeições',
+                      style: GoogleFonts.cookie(fontSize: 34),
                     ),
                     const SizedBox(height: 16),
                     RefeicoesWidget(refeicoesDoDia: _refeicoesDoDia),

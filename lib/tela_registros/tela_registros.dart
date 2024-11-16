@@ -22,25 +22,24 @@ class _RegistrosScreenState extends State<RegistrosScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Cor branca sólida
+        elevation: 0, // Remove a sombra para evitar alteração de cor
+        toolbarHeight: 100,
+        title: LayoutBuilder(
+          builder: (context, constraints) {
+            double logoSize = constraints.maxWidth * 0.4;
+            if (logoSize > 150) logoSize = 150; // Limita o tamanho máximo da logo
+            return Image.asset(
+              'lib/img/registros_logo.png',
+              height: logoSize,
+              width: logoSize,
+              fit: BoxFit.contain,
+            );
+          },
+        ),
         centerTitle: true,
-        title: const Text(
-          'Registros',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 25,
-            fontFamily: 'Lemonada',
-            fontWeight: FontWeight.w300,
-          ),
-        ), // Sem sombra
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {
-              // Ação para notificações
-            },
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),

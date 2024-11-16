@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:main/autentificacao/auth_screen.dart';
 import 'package:main/core/env.dart';
 import 'package:main/tela_conta/tela_conta.dart';
@@ -94,6 +95,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
@@ -109,10 +111,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.red,
+        selectedLabelStyle: GoogleFonts.cookie(),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home_sharp),
-            label: 'Página Inicial',
+            label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: FaIcon(FontAwesomeIcons.conciergeBell),
