@@ -147,7 +147,7 @@ class _ReceitaScreenState extends State<ReceitaScreen>
                   ),
                   const SizedBox(width: 8),
                   const Text(
-                    "Gerar uma receita",
+                    "Gerar uma receita com IA",
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ],
