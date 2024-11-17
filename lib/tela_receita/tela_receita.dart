@@ -7,7 +7,6 @@ class ReceitaScreen extends StatefulWidget {
   const ReceitaScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ReceitaScreenState createState() => _ReceitaScreenState();
 }
 
@@ -68,6 +67,9 @@ class _ReceitaScreenState extends State<ReceitaScreen>
   Future<void> obterReceita(String input) async {
     if (input.isEmpty) return;
 
+    // Concatenação do texto enviado ao prompt
+    final String formattedInput = "Me gere uma resposta para o seguinte prompt caso tiver relação com receitas e culinária, caso não tiver, me retorne apenas 'Desculpe, não identifiquei o seu pedido como uma receita...': $input";
+
     setState(() {
       _controller.text = '';
       _isLoading = true;
@@ -75,10 +77,8 @@ class _ReceitaScreenState extends State<ReceitaScreen>
       promptMessage = "Pedido: $input";
     });
 
-    final msg = input;
-
     try {
-      gemini.streamGenerateContent(msg).listen((value) {
+      gemini.streamGenerateContent(formattedInput).listen((value) {
         setState(() {
           output += value.output ?? '';
         });
