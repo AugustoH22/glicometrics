@@ -38,7 +38,8 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
   double totalGorduras = 0;
   double totalCalorias = 0;
 
-  final FirestoreService _firestoreService = FirestoreService(); // Instância do FirestoreService
+  final FirestoreService _firestoreService =
+      FirestoreService(); // Instância do FirestoreService
 
   @override
   void initState() {
@@ -348,21 +349,22 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
     return Expanded(
       child: Container(
         height: 75,
-        padding: const EdgeInsets.all(9.0),
+        padding: const EdgeInsets.all(7.0),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(8.0),
         ),
         child: Column(
           children: [
+            const SizedBox(height: 10),
             Text(
               label,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Text(
               '${value.toStringAsFixed(2)} $unit',
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -377,13 +379,41 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: widget.selectedItems.length,
       itemBuilder: (context, index) {
-        final Map<String, dynamic> alimento = widget.selectedItems[index]['food'];
+        final Map<String, dynamic> alimento =
+            widget.selectedItems[index]['food'];
+
         return ListTile(
           title: Text(alimento['nome'] ?? 'Nome não disponível'),
-          subtitle: Text('Quantidade: ${widget.selectedItems[index]['quantity']}'),
-          trailing: IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () => _removeItem(index),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start, // Alinha à esquerda
+            children: [
+              Text('Porção: ${widget.selectedItems[index]['porcao']}'),
+              Text('Quantidade: ${widget.selectedItems[index]['quantity']}'),
+            ],
+          ),
+          trailing: SizedBox(
+            width: 60, // Limita a largura do trailing para evitar overflow
+            child: Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.end, // Alinha ícones à direita
+              children: [
+                Expanded(
+                  child: IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () =>
+                        _removeItem(index), // Altere conforme necessário
+                  ),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () =>
+                        _removeItem(index), // Altere conforme necessário
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },

@@ -49,7 +49,9 @@ class _PesoScreenState extends State<PesoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         title: const Text('Peso'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -71,13 +73,13 @@ class _PesoScreenState extends State<PesoScreen> {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 elevation: 4,
-                color: Colors.blue[50],
+                color: Colors.white,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Icon(Icons.monitor_weight, size: 40, color: Colors.blue),
+                      const Icon(Icons.monitor_weight, size: 40, color: Colors.grey),
                       const SizedBox(height: 10),
                       Text(
                         peso, // Exibe o último valor de peso salvo
@@ -91,7 +93,7 @@ class _PesoScreenState extends State<PesoScreen> {
                         dataHora, // Exibe a data e hora do último valor
                         style: const TextStyle(
                           fontSize: 16,
-                          color: Colors.grey,
+                          color: Color.fromARGB(255, 34, 29, 29),
                         ),
                       ),
                     ],
@@ -116,7 +118,7 @@ class _PesoScreenState extends State<PesoScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 4,
-                    color: Colors.blue[50],
+                    color: const Color.fromARGB(255, 255, 255, 255),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Row(
@@ -128,7 +130,7 @@ class _PesoScreenState extends State<PesoScreen> {
                           ),
                           Text(
                             '${registro['hora']}',
-                            style: const TextStyle(fontSize: 16, color: Colors.grey),
+                            style: const TextStyle(fontSize: 16, color: Color.fromARGB(255, 34, 29, 29)),
                           ),
                         ],
                       ),

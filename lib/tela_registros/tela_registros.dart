@@ -49,16 +49,16 @@ class _RegistrosScreenState extends State<RegistrosScreen>
           crossAxisAlignment: CrossAxisAlignment
               .stretch, // Garante que todos os botões tenham o mesmo tamanho na largura
           children: [
-            _buildButton('Registrar Refeição', Icons.restaurant, Colors.orange,
+            _buildButton('Registrar Refeição', Icons.restaurant, const Color.fromARGB(255, 244, 239, 239),
                 context, const RefeicaoScreen()),
             const SizedBox(height: 20), // Espaço entre os botões
-            _buildButton('Registrar Glicemia', Icons.bloodtype, Colors.red,
+            _buildButton('Registrar Glicemia', Icons.bloodtype, const Color.fromARGB(255, 244, 239, 239),
                 context, const GlicemiaScreen()),
             const SizedBox(height: 20), // Espaço entre os botões
-            _buildButtonWithPopup('Registrar Hipoglicemia', Icons.warning, Colors.blue),
+            _buildButtonWithPopup('Registrar Hipoglicemia', Icons.warning, const Color.fromARGB(255, 244, 239, 239)),
             const SizedBox(height: 20), // Espaço entre os botões
             _buildButton('Dados de Saúde', Icons.health_and_safety,
-                Colors.green, context, const SaudeScreen()),
+                const Color.fromARGB(255, 244, 239, 239), context, const SaudeScreen()),
           ],
         ),
       ),
@@ -83,10 +83,10 @@ class _RegistrosScreenState extends State<RegistrosScreen>
           MaterialPageRoute(builder: (context) => destinationScreen),
         );
       },
-      icon: Icon(icon, size: 28, color: Colors.white),
+      icon: Icon(icon, size: 28, color: Colors.grey),
       label: Text(
         text,
-        style: const TextStyle(fontSize: 18, color: Colors.white),
+        style: const TextStyle(fontSize: 18, color: Colors.grey),
       ),
     );
   }
@@ -104,10 +104,10 @@ class _RegistrosScreenState extends State<RegistrosScreen>
       onPressed: () {
         _showConfirmDialog(context);
       },
-      icon: Icon(icon, size: 28, color: Colors.white),
+      icon: Icon(icon, size: 28, color: Colors.grey),
       label: Text(
         text,
-        style: const TextStyle(fontSize: 18, color: Colors.white),
+        style: const TextStyle(fontSize: 18, color: Colors.grey),
       ),
     );
   }
