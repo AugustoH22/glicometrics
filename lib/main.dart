@@ -111,7 +111,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.red,
         selectedLabelStyle: GoogleFonts.cookie(),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
