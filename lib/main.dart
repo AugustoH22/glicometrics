@@ -19,19 +19,14 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
- await initializeDateFormatting('pt_BR', null);
+  await initializeDateFormatting('pt_BR', null);
 
-  
-  Gemini.init(apiKey:  Env.apiKey);
+  Gemini.init(apiKey: Env.apiKey);
   runApp(const GlicoMetricsApp());
 }
 
-
 class GlicoMetricsApp extends StatelessWidget {
   const GlicoMetricsApp({super.key});
-
-
-   
 
   @override
   Widget build(BuildContext context) {
@@ -111,31 +106,90 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        selectedLabelStyle: GoogleFonts.cookie(),
-        items: const <BottomNavigationBarItem>[
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        elevation: 5,
+        selectedLabelStyle: GoogleFonts.montserrat(fontSize: 12, fontWeight: FontWeight.bold),
+        unselectedLabelStyle: const TextStyle(fontSize: 0), // Esconde textos não selecionados
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_sharp),
-            label: 'Home',
+            icon: const Icon(Icons.home_sharp, size: 30),
+            activeIcon: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.home_sharp, size: 30),
+                Text(
+                  'Home',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    color: const Color.fromARGB(255, 69, 133, 228),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            label: '',
           ),
           BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.conciergeBell),
-            label: 'Receitas',
+            icon: const FaIcon(FontAwesomeIcons.utensils, size: 26),
+            activeIcon: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const FaIcon(FontAwesomeIcons.utensils, size: 28),
+                Text(
+                  'Receitas',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    color: const Color.fromARGB(255, 69, 133, 228),
+                    fontWeight: FontWeight.bold,
+                ),
+                ),
+              ],
+            ),
+            label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.app_registration_rounded),
-            label: 'Registros',
+            icon: const Icon(Icons.bar_chart_outlined, size: 26),
+            activeIcon: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.bar_chart_outlined, size: 28),
+                Text(
+                  'Registros',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    color: const Color.fromARGB(255, 69, 133, 228),
+                    fontWeight: FontWeight.bold,
+                ),
+                ),
+              ],
+            ),
+            label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle_sharp),
-            label: 'Minha Conta',
+            icon: const Icon(Icons.account_circle_sharp, size: 26),
+            activeIcon: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.account_circle_rounded, size: 30),
+                Text(
+                  'Minha Conta',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    color: const Color.fromARGB(255, 69, 133, 228),
+                    fontWeight: FontWeight.bold,
+                ),
+                ),
+              ],
+            ),
+            label: '',
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: const Color.fromARGB(255, 69, 133, 228),
+        unselectedItemColor: const Color.fromARGB(255, 128, 129, 131),
         onTap: _onItemTapped,
       ),
     );
   }
 }
-
