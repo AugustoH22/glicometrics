@@ -68,7 +68,7 @@ class _ReceitaScreenState extends State<ReceitaScreen>
     if (input.isEmpty) return;
 
     // Concatenação do texto enviado ao prompt
-    final String formattedInput = "Me gere uma resposta para o seguinte prompt caso tiver relação com receitas e culinária, caso não tiver, me retorne apenas 'Desculpe, não identifiquei o seu pedido como uma receita...': $input";
+    final String formattedInput = "Me gere uma resposta para o seguinte prompt caso tiver relação com receitas e culinária, caso não tiver, me retorne apenas 'Desculpe, não identifiquei o seu pedido como uma receita...': $input, lembre-se que sou diabético e não posso consumir açúcar, então por favor, me retorne uma receita que não contenha açúcar.";
 
     setState(() {
       _controller.text = '';
