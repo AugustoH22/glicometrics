@@ -9,7 +9,7 @@ class MedicoesWidget extends StatelessWidget {
   final double maiorPeso;
   final double menorPeso;
   final double imc;
-  final double altura;
+  final int altura;
   final Map<String, dynamic>? ultimaPressao;
   final VoidCallback alterarAltura;
   final List<Map<String, dynamic>>? ultimasPressao;

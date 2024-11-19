@@ -336,6 +336,17 @@ class FirestoreService {
           .doc('refeicoes')
           .collection('c_refeicoes')
           .add(refeicaoData);
+
+      if (refeicaoData['glicemiaValue'] != "") {
+        await _db.collection(uid).doc('glicemia').collection('c_glicemias').add({
+          'data': refeicaoData['selectedDate'],
+          'hora': refeicaoData['selectedTime'],
+          'timestamp': refeicaoData['selectedDate'],
+          'tipo': refeicaoData['selectedMeal'],
+          'valor': refeicaoData['glicemiaValue'],
+        });
+      }
+
       if (kDebugMode) {
         print('Refeição salva com sucesso!');
       }
@@ -426,12 +437,11 @@ class FirestoreService {
   }
 
   Future<List<Map<String, dynamic>>> getUltimasMedicoesPressao() async {
-
     try {
       // Busca os últimos 7 registros de pressão, ordenados pela data
       QuerySnapshot snapshot = await _db
           .collection(uid)
-          .doc('pressao_arterial') 
+          .doc('pressao_arterial')
           .collection('c_pressao_arterial')
           .orderBy('data', descending: true)
           .limit(7)

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+// ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 
 class RefeicoesWidget extends StatefulWidget {
@@ -84,10 +85,10 @@ class _RefeicoesWidgetState extends State<RefeicoesWidget> {
                               ),
                               ...refeicoes
                                   .map((refeicao) => _buildListItem(refeicao))
-                                  .toList(),
+                                  ,
                             ],
                           );
-                        }).toList(),
+                        }),
                       ],
                     );
                   },

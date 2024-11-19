@@ -496,6 +496,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  simple_ruler_picker:
+    dependency: "direct main"
+    description:
+      name: simple_ruler_picker
+      sha256: "32abc66a7f532f0ab588127b23108fe9969cc95ae8c1455eb0f538a249939960"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.1"
   sky_engine:
     dependency: transitive
     description: flutter

@@ -186,6 +186,91 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
     );
   }
 
+  void _editItem(int index) {
+    Map<String, dynamic> currentItem = widget.selectedItems[index];
+    String porcao = currentItem['porcao'];
+    int quantidade = currentItem['quantity'];
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: Text(currentItem['food']['nome'] ?? 'Alimento'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: porcao,
+                    items: ['g', 'kg', 'Porção de 100g'].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setStateDialog(() {
+                        porcao = value ?? 'Porção de 100g';
+                      });
+                    },
+                    decoration: const InputDecoration(labelText: 'Porção'),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: () {
+                          setStateDialog(() {
+                            if (quantidade > 1) quantidade--;
+                          });
+                        },
+                      ),
+                      Text(
+                        quantidade.toString(),
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () {
+                          setStateDialog(() {
+                            quantidade++;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // Atualizar os valores no item selecionado
+                    setState(() {
+                      widget.selectedItems[index]['porcao'] = porcao;
+                      widget.selectedItems[index]['quantity'] = quantidade;
+                      _calcularNutrientes(); // Recalcular os valores nutricionais
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Salvar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   // Função para remover um item da lista
   void _removeItem(int index) {
     setState(() {
@@ -401,7 +486,7 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
                   child: IconButton(
                     icon: const Icon(Icons.edit),
                     onPressed: () =>
-                        _removeItem(index), // Altere conforme necessário
+                        _editItem(index), // Altere conforme necessário
                   ),
                 ),
                 const SizedBox(width: 20),

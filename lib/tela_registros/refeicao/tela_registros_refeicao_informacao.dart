@@ -33,6 +33,15 @@ class _InformacaoRefeicaoScreenState extends State<InformacaoRefeicaoScreen> {
 
   // Variável de controle para rastrear se a tela "Refeição" foi visitada
   bool refeicaoScreenVisited = false;
+  bool campo = false;
+  final TextEditingController pesoController = TextEditingController();
+
+  void _checkFields() {
+    setState(() {
+      // O botão é habilitado somente se os valores estiverem preenchidos
+      campo = pesoController.text.isNotEmpty;
+    });
+  }
 
   @override
   void initState() {
@@ -40,12 +49,18 @@ class _InformacaoRefeicaoScreenState extends State<InformacaoRefeicaoScreen> {
     selectedMeal = widget.selectedMeal;
     glicemiaValue = widget.glicemiaValue;
     isNoGlicemia = widget.isNoGlicemia;
+    pesoController.addListener(_checkFields);
+  }
+
+  @override
+  void dispose() {
+    pesoController.dispose();
+    super.dispose();
   }
 
   bool _isNextButtonEnabled() {
     // O botão "Próximo" só habilita se uma refeição for selecionada e a glicemia estiver preenchida ou "Sem glicemia" estiver ativo
-    return selectedMeal != null &&
-        (glicemiaValue?.isNotEmpty == true || (isNoGlicemia ?? false));
+    return selectedMeal != null && (campo || (isNoGlicemia ?? false));
   }
 
   @override
@@ -224,6 +239,7 @@ class _InformacaoRefeicaoScreenState extends State<InformacaoRefeicaoScreen> {
                         ),
                         const SizedBox(height: 20),
                         TextField(
+                          controller: pesoController,
                           keyboardType: TextInputType.number,
                           enabled: !(isNoGlicemia ??
                               false), // Desabilita o campo se "Sem glicemia" estiver ativo
@@ -261,49 +277,50 @@ class _InformacaoRefeicaoScreenState extends State<InformacaoRefeicaoScreen> {
                   ),
                 ),
                 const SizedBox(
-                    height: 80), // Espaço para o botão "Próximo" no final
+                    height: 20), // Espaço para o botão "Próximo" no final
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ElevatedButton(
+                      onPressed: _isNextButtonEnabled()
+                          ? () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => BuscaAlimentoScreen(
+                                    selectedOption: widget
+                                        .selectedOption, // Add the missing positional argument
+                                    selectedDate: widget.selectedDate,
+                                    selectedTime: widget.selectedTime,
+                                    glicemiaValue: glicemiaValue,
+                                    isNoGlicemia: isNoGlicemia,
+                                    selectedMeal: selectedMeal,
+                                    selectedItems: selectedItems,
+                                  ),
+                                ),
+                              ).then((visited) {
+                                if (visited == true) {
+                                  setState(() {
+                                    refeicaoScreenVisited = true;
+                                  });
+                                }
+                              });
+                            }
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        disabledForegroundColor: Colors.grey.withOpacity(0.38),
+                        disabledBackgroundColor: Colors.grey.withOpacity(
+                            0.12), // Cor do botão quando desabilitado
+                      ), // Desabilita o botão se os campos não estiverem preenchidos
+                      child: const Text('Próximo'),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
           // Botão "Próximo" fixo no final da tela
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                onPressed: _isNextButtonEnabled()
-                    ? () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BuscaAlimentoScreen(
-                              selectedOption: widget.selectedOption, // Add the missing positional argument
-                              selectedDate: widget.selectedDate,
-                              selectedTime: widget.selectedTime,
-                              glicemiaValue: glicemiaValue,
-                              isNoGlicemia: isNoGlicemia,
-                              selectedMeal: selectedMeal,
-                              selectedItems: selectedItems,
-                            ),
-                          ),
-                        ).then((visited) {
-                          if (visited == true) {
-                            setState(() {
-                              refeicaoScreenVisited = true;
-                            });
-                          }
-                        });
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  disabledForegroundColor: Colors.grey.withOpacity(0.38),
-                  disabledBackgroundColor: Colors.grey
-                      .withOpacity(0.12), // Cor do botão quando desabilitado
-                ), // Desabilita o botão se os campos não estiverem preenchidos
-                child: const Text('Próximo'),
-              ),
-            ),
-          ),
         ],
       ),
     );

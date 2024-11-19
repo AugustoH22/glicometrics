@@ -11,15 +11,16 @@ class BuscaAlimentoScreen extends StatefulWidget {
   final String? selectedMeal;
   final List<Map<String, dynamic>>? selectedItems;
 
-  const BuscaAlimentoScreen(
-      {super.key,
-      this.selectedOption,
-      this.selectedDate,
-      this.selectedTime,
-      this.glicemiaValue,
-      this.isNoGlicemia,
-      this.selectedMeal,
-      required this.selectedItems});
+  const BuscaAlimentoScreen({
+    super.key,
+    this.selectedOption,
+    this.selectedDate,
+    this.selectedTime,
+    this.glicemiaValue,
+    this.isNoGlicemia,
+    this.selectedMeal,
+    required this.selectedItems,
+  });
 
   @override
   // ignore: library_private_types_in_public_api
@@ -31,6 +32,7 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
   List<Map<String, dynamic>> searchResults = [];
   List<Map<String, dynamic>> favoriteMeals = [];
   bool isLoading = false;
+  bool isSearching = false; // Controle de exibição
   int quantity = 1;
   List<Map<String, dynamic>>? selectedItems;
 
@@ -66,11 +68,13 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
     if (query.isEmpty) {
       setState(() {
         searchResults = [];
+        isSearching = false; // Mostrar pesquisas recentes e favoritas novamente
       });
       return;
     }
 
     setState(() {
+      isSearching = true; // Ocultar pesquisas recentes e favoritas
       isLoading = true;
     });
 
@@ -79,6 +83,22 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
     setState(() {
       searchResults = results;
       isLoading = false;
+    });
+  }
+
+  void _addFoodToSelection(Map<String, dynamic> food, String porcao, int localQuantity) {
+    setState(() {
+      selectedItems!.add({
+        'porcao': porcao,
+        'food': food,
+        'quantity': localQuantity,
+      });
+
+      // Verificar se a pesquisa já está nas pesquisas recentes
+      if (!recentSearches.any((recent) => recent['nome'] == food['nome'])) {
+        recentSearches.add(food);
+        _firestoreService.saveRecentSearch(food); // Salvar a pesquisa recente
+      }
     });
   }
 
@@ -160,17 +180,6 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
     );
   }
 
-  void _addFoodToSelection(Map<String, dynamic> food, String porcao, int localQuantity) {
-    setState(() {
-      selectedItems!.add({
-        'porcao': porcao,
-        'food': food,
-        'quantity': localQuantity,
-      });
-      _firestoreService.saveRecentSearch(food); // Salvar a pesquisa recente
-    });
-  }
-
   void _navigateToRevisaoAlimentosScreen(BuildContext context) {
     Navigator.push(
       context,
@@ -186,20 +195,6 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
         ),
       ),
     );
-  }
-
-  List<Map<String, dynamic>> _processFavoriteMealItems(List<dynamic> mealData) {
-    List<Map<String, dynamic>> selectedItemsFromFav = [];
-
-    for (var alimento in mealData) {
-      selectedItemsFromFav.add({
-        'food': alimento['food'] ?? 'Desconhecido', // Prevenção de nulos
-        'quantity': alimento['quantity'] ?? 1, // Prevenção de nulos
-        'porcao': alimento['porcao'] ?? 'Porção não definida', // Prevenção de nulos
-      });
-    }
-
-    return selectedItemsFromFav;
   }
 
   @override
@@ -239,36 +234,36 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
               },
             ),
             const SizedBox(height: 20),
-            const Text('Pesquisas Recentes'),
-            Wrap(
-              children: recentSearches
-                  .map((search) => GestureDetector(
-                        onTap: () => _showFoodPopup(context, search),
-                        child: Chip(label: Text(search['nome'] ?? 'Nome não disponível')),
-                      ))
-                  .toList(),
-            ),
-            const SizedBox(height: 20),
-            const Text('Refeições Favoritas'),
-            Expanded(
-              child: ListView.builder(
-                itemCount: favoriteMeals.length,
-                itemBuilder: (context, index) {
-                  final meal = favoriteMeals[index];
-                  final List<Map<String, dynamic>> items = _processFavoriteMealItems(meal['items']);
-
-                  return ListTile(
-                    title: Text(meal['nome'] ?? 'Nome desconhecido'),
-                    onTap: () => _loadFavoriteMeal(items),
-                  );
-                },
+            if (!isSearching) ...[
+              const Text('Pesquisas Recentes'),
+              Wrap(
+                children: recentSearches
+                    .map((search) => GestureDetector(
+                          onTap: () => _showFoodPopup(context, search),
+                          child: Chip(label: Text(search['nome'] ?? 'Nome não disponível')),
+                        ))
+                    .toList(),
               ),
-            ),
-            const SizedBox(height: 20),
-            isLoading
-                ? const CircularProgressIndicator()
-                : Expanded(
-                    child: searchResults.isNotEmpty
+              const SizedBox(height: 20),
+              const Text('Refeições Favoritas'),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: favoriteMeals.length,
+                  itemBuilder: (context, index) {
+                    final meal = favoriteMeals[index];
+                    return ListTile(
+                      title: Text(meal['nome'] ?? 'Nome desconhecido'),
+                      onTap: () => _navigateToRevisaoAlimentosScreen(context),
+                    );
+                  },
+                ),
+              ),
+            ],
+            if (isSearching)
+              Expanded(
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : searchResults.isNotEmpty
                         ? ListView.builder(
                             itemCount: searchResults.length,
                             itemBuilder: (context, index) {
@@ -279,40 +274,11 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
                               );
                             },
                           )
-                        : const Text('Nenhum alimento encontrado'),
-                  ),
+                        : const Center(child: Text('Nenhum alimento encontrado')),
+              ),
           ],
         ),
       ),
     );
-  }
-
-  void _loadFavoriteMeal(List<Map<String, dynamic>> mealData) {
-    if (mealData.isNotEmpty) {
-      List<Map<String, dynamic>> selectedItemsFromFav = [];
-
-      for (var alimento in mealData) {
-        selectedItemsFromFav.add({
-          'food': alimento['food'] ?? 'Desconhecido',
-          'quantity': alimento['quantity'] ?? 1,
-          'porcao': alimento['porcao'] ?? 'Porção não definida',
-        });
-      }
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => RevisaoAlimentosScreen(
-            selectedItems: selectedItemsFromFav,
-            selectedDate: widget.selectedDate,
-            selectedTime: widget.selectedTime,
-            selectedOption: widget.selectedOption,
-            glicemiaValue: widget.glicemiaValue,
-            isNoGlicemia: widget.isNoGlicemia,
-            selectedMeal: widget.selectedMeal,
-          ),
-        ),
-      );
-    }
   }
 }
