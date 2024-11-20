@@ -24,9 +24,18 @@ class _InformacaoScreenState extends State<InformacaoScreen> {
   }
 
   Future<void> _saveGlicemiaData() async {
+    DateTime dataComHora = widget.selectedDate?.copyWith(
+                    hour: widget.selectedTime?.hour,
+                    minute: widget.selectedTime?.minute,
+                    second:
+                        0, // Você pode ajustar para outros valores se necessário
+                    millisecond: 0,
+                    microsecond: 0,
+                  ) ??
+                  DateTime.now();
     if (widget.selectedDate != null && widget.selectedTime != null) {
       await _firestoreService.salvarGlicemia(
-        data: widget.selectedDate!,
+        data: dataComHora,
         hora: widget.selectedTime!,
         tipo: glicemiaType!,
         valorGlicemia: glicemiaValue,

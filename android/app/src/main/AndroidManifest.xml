@@ -2,7 +2,7 @@
  package="com.example.main">
  <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="main"
+        android:label="GlicoMetrics"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

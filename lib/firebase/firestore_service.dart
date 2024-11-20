@@ -159,7 +159,8 @@ class FirestoreService {
     required int sistolica,
     required int diastolica,
     required DateTime data,
-    required String hora,
+    required TimeOfDay hora,
+
   }) async {
     try {
       await _db
@@ -170,7 +171,7 @@ class FirestoreService {
         'sistolica': sistolica,
         'diastolica': diastolica,
         'data': data,
-        'hora': hora,
+        'hora': '${hora.hour.toString().padLeft(2, '0')}:${hora.minute.toString().padLeft(2, '0')}',
       });
       if (kDebugMode) {
         print('Pressão arterial salva com sucesso!');

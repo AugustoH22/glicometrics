@@ -284,9 +284,18 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
     return ElevatedButton(
       onPressed: widget.selectedItems.isNotEmpty
           ? () async {
+              DateTime dataComHora = widget.selectedDate?.copyWith(
+                    hour: widget.selectedTime?.hour,
+                    minute: widget.selectedTime?.minute,
+                    second:
+                        0, // Você pode ajustar para outros valores se necessário
+                    millisecond: 0,
+                    microsecond: 0,
+                  ) ??
+                  DateTime.now();
               try {
                 Map<String, dynamic> refeicaoData = {
-                  'selectedDate': widget.selectedDate ?? '',
+                  'selectedDate': dataComHora,
                   'selectedTime': widget.selectedTime?.format(context) ?? '',
                   'glicemiaValue': widget.glicemiaValue ?? '',
                   'isNoGlicemia': widget.isNoGlicemia ?? false,
