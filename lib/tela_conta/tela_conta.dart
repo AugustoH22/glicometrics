@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:main/autentificacao/auth_service.dart';
+import 'package:main/tela_conta/tela_meu_perfil.dart';
 
 class ContaScreen extends StatefulWidget {
   const ContaScreen({super.key});
@@ -65,33 +66,17 @@ class _ContaScreenState extends State<ContaScreen>
                   icon: Icons.person,
                   text: 'Meu Perfil',
                   onTap: () {
-                    // Ação ao clicar
-                  },
-                ),
-                _buildListItem(
-                  icon: Icons.notifications,
-                  text: 'Lembretes',
-                  onTap: () {
-                    // Ação ao clicar
-                  },
-                ),
-                _buildListItem(
-                  icon: Icons.local_hospital,
-                  text: 'Medicamentos',
-                  onTap: () {
-                    // Ação ao clicar
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DadosPessoaisPage(),
+                      ),
+                    );
                   },
                 ),
                 _buildListItem(
                   icon: Icons.insert_chart,
                   text: 'Relatórios',
-                  onTap: () {
-                    // Ação ao clicar
-                  },
-                ),
-                _buildListItem(
-                  icon: Icons.devices,
-                  text: 'Meus Dispositivos',
                   onTap: () {
                     // Ação ao clicar
                   },

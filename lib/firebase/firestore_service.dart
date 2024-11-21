@@ -183,6 +183,57 @@ class FirestoreService {
     }
   }
 
+  // Função para salvar dados de pressão arterial
+  Future<void> salvarDadosPessoais({
+    required String nome,
+    required String sobrenome,
+    required String celular,
+    required String dataNascimento,
+    required String genero,
+
+  }) async {
+    try {
+      await _db
+          .collection(uid)
+          .doc('dados_pessoais')
+          .collection('c_dados_pessoais')
+          .add({
+        'nome': nome,
+        'sobrenome': sobrenome,
+        'celular': celular,
+        'dataNascimento': dataNascimento,
+        'genero': genero,
+      });
+      if (kDebugMode) {
+        print('Dados salvos com sucesso!');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erro ao salvar dados: $e');
+      }
+    }
+  }
+
+  // Função para buscar o último registro de pressão arterial
+  Future<Map<String, dynamic>?> getDadosPessoais() async {
+    try {
+      QuerySnapshot querySnapshot = await _db
+          .collection(uid)
+          .doc('dados_pessoais')
+          .collection('c_dados_pessoais')
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs.first.data() as Map<String, dynamic>;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Erro ao buscar último registro de pressão: $e");
+      }
+    }
+    return null;
+  }
+
   // Função para buscar o último registro de pressão arterial
   Future<Map<String, dynamic>?> getUltimoRegistroPressao() async {
     try {
