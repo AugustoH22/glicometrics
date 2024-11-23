@@ -21,7 +21,7 @@ class GraficosLinha extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           'Glicemia',
-          style: GoogleFonts.cookie(fontSize: 30),
+          style: TextStyle(fontSize: 18),
         ),
         Container(
           width: MediaQuery.of(context).size.width * 0.95,
@@ -129,7 +129,7 @@ class GraficosLinha extends StatelessWidget {
         // Gráfico de Nutrição dos últimos 7 dias
         Text(
           'Alimentação',
-          style: GoogleFonts.cookie(fontSize: 30),
+          style: TextStyle(fontSize: 18),
         ),
         Container(
           width: MediaQuery.of(context).size.width * 0.95,

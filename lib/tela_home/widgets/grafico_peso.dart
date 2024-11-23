@@ -130,10 +130,10 @@ class GraficoPeso extends StatelessWidget {
       children: [
         Text(
           valor.toStringAsFixed(1),
-          style: GoogleFonts.cookie(fontSize: 28, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
         ),
         Text(label,
-            style: GoogleFonts.cookie(fontSize: 18, color: Colors.grey)),
+            style: TextStyle(fontSize: 18, color: Colors.grey)),
       ],
     );
   }

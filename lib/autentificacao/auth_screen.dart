@@ -16,12 +16,16 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController _senhaController = TextEditingController();
   final TextEditingController _confirmaController = TextEditingController();
   final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _sobrenomeController = TextEditingController();
 
   bool isEntrando = true;
 
   final _formKey = GlobalKey<FormState>();
 
   AuthService authService = AuthService();
+  //final FirestoreService _firestoreService = FirestoreService();
+
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -128,6 +132,18 @@ class _AuthScreenState extends State<AuthScreen> {
                                 return null;
                               },
                             ),
+                            TextFormField(
+                              controller: _sobrenomeController,
+                              decoration: const InputDecoration(
+                                label: Text("Sobrenome"),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.length < 3) {
+                                  return "Insira um nome maior.";
+                                }
+                                return null;
+                              },
+                            ),
                           ],
                         )),
                     const SizedBox(height: 16),
@@ -180,12 +196,13 @@ class _AuthScreenState extends State<AuthScreen> {
     String email = _emailController.text;
     String senha = _senhaController.text;
     String nome = _nomeController.text;
+    String sobrenome = _sobrenomeController.text;
 
     if (_formKey.currentState!.validate()) {
       if (isEntrando) {
         _entrarUsuario(email: email, senha: senha);
       } else {
-        _criarUsuario(email: email, senha: senha, nome: nome);
+        _criarUsuario(email: email, senha: senha, nome: nome, sobrenome: sobrenome);
       }
     }
   }
@@ -203,8 +220,9 @@ class _AuthScreenState extends State<AuthScreen> {
     required String email,
     required String senha,
     required String nome,
+    required String sobrenome,
   }) {
-    authService.cadastrarUsuario(email: email, senha: senha, nome: nome).then(
+    authService.cadastrarUsuario(email: email, senha: senha, nome: nome, sobrenome: sobrenome).then(
       (String? erro) {
         if (erro != null) {
           // ignore: use_build_context_synchronously

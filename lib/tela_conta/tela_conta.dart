@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:main/autentificacao/auth_service.dart';
+import 'package:main/firebase/firestore_service.dart';
 import 'package:main/tela_conta/tela_meu_perfil.dart';
+import 'package:main/tela_conta/tela_termo.dart';
 
 class ContaScreen extends StatefulWidget {
   const ContaScreen({super.key});
@@ -13,7 +15,24 @@ class ContaScreen extends StatefulWidget {
 class _ContaScreenState extends State<ContaScreen>
     with AutomaticKeepAliveClientMixin {
   // Simulando o nome do usuário
-  String nomeUsuario = 'João Silva';
+  String nomeUsuario = '';
+  Map<String, dynamic>? dadosPessoais = {};
+  final FirestoreService _firestoreService = FirestoreService();
+
+  @override
+  void initState() {
+    super.initState();
+    _buscarDados();
+  }
+
+  Future<void> _buscarDados() async {
+    dadosPessoais = await _firestoreService.getDadosPessoais();
+
+    setState(() {
+      nomeUsuario = dadosPessoais?['nome'] ?? 'Usuário';
+    });
+
+  }
 
   @override
   bool get wantKeepAlive => true;
@@ -37,9 +56,6 @@ class _ContaScreenState extends State<ContaScreen>
               padding: const EdgeInsets.only(left: 25.0, top: 45.0),
               child: Row(
                 children: [
-                  const CircleAvatar(
-                    radius: 40, // Substitua pelo caminho da imagem
-                  ),
                   const SizedBox(
                       width: 10), // Espaçamento entre o avatar e o texto
                   Expanded(
@@ -75,17 +91,15 @@ class _ContaScreenState extends State<ContaScreen>
                   },
                 ),
                 _buildListItem(
-                  icon: Icons.insert_chart,
-                  text: 'Relatórios',
-                  onTap: () {
-                    // Ação ao clicar
-                  },
-                ),
-                _buildListItem(
                   icon: Icons.privacy_tip,
                   text: 'Termo e Privacidade',
                   onTap: () {
-                    // Ação ao clicar
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TermosEPrivacidadeScreen(),
+                      ),
+                    );
                   },
                 ),
                 _buildListItem(

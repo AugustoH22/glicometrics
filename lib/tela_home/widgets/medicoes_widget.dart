@@ -48,7 +48,7 @@ class MedicoesWidget extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           'Peso',
-          style: GoogleFonts.cookie(fontSize: 30),
+          style: TextStyle(fontSize: 18),
         ),
         // Peso Atual, Maior Peso, e Menor Peso
         Container(
@@ -84,14 +84,14 @@ class MedicoesWidget extends StatelessWidget {
               Text(
                 imc.toStringAsFixed(1),
                 style:
-                     GoogleFonts.cookie(fontSize: 40, fontWeight: FontWeight.bold),
+                     TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
 
               // Classificação do IMC
               Text(
                 _getIMCClassificacao(imc),
-                style:  GoogleFonts.cookie(fontSize: 20, color: Colors.orange),
+                style:  TextStyle(fontSize: 14, color: Colors.orange),
               ),
               const SizedBox(height: 16),
 
@@ -104,7 +104,7 @@ class MedicoesWidget extends StatelessWidget {
                 children: [
                   Text(
                     "Altura:",
-                    style:  GoogleFonts.cookie(fontSize: 24),
+                    style:  TextStyle(fontSize: 14),
                   ),
                   const Spacer(), // Adiciona espaço flexível entre os itens
                   InkWell(
@@ -120,8 +120,8 @@ class MedicoesWidget extends StatelessWidget {
                       ),
                       child: Text(
                         "${altura.toInt()}",
-                        style:  GoogleFonts.cookie(
-                            fontSize: 24, fontWeight: FontWeight.bold),
+                        style:  TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -129,7 +129,7 @@ class MedicoesWidget extends StatelessWidget {
                       width: 5), // Espaço entre o Container e o texto "cm"
                   Text(
                     "cm",
-                    style:  GoogleFonts.cookie(fontSize: 24),
+                    style:  TextStyle(fontSize: 14),
                   ),
                 ],
               ),
@@ -139,7 +139,7 @@ class MedicoesWidget extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           'Pressão Arterial',
-          style: GoogleFonts.cookie(fontSize: 30),
+          style: TextStyle(fontSize: 18),
         ),
         Container(
           width: MediaQuery.of(context).size.width * 0.95,
@@ -176,8 +176,8 @@ class MedicoesWidget extends StatelessWidget {
                               ),
                               Text(
                                 '${ultimaPressao?['sistolica'] ?? 'N/A'}',
-                                style: GoogleFonts.cookie(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
                               ),
                               Text(
                                 'mmHg',
@@ -195,8 +195,8 @@ class MedicoesWidget extends StatelessWidget {
                               ),
                               Text(
                                 '${ultimaPressao?['diastolica'] ?? 'N/A'}',
-                                style:  GoogleFonts.cookie(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
+                                style:  TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
                               ),
                               Text(
                                 'mmHg',
@@ -335,9 +335,9 @@ class MedicoesWidget extends StatelessWidget {
       children: [
         Text(
           valor.toStringAsFixed(1),
-          style:  GoogleFonts.cookie(fontSize: 28, fontWeight: FontWeight.bold),
+          style:  TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
-        Text(label, style: GoogleFonts.cookie(fontSize: 18, color: Colors.grey)),
+        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey)),
       ],
     );
   }

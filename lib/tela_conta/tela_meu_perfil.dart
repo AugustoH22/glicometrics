@@ -31,23 +31,24 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
   String terapia = "Não uso Insulina";
   String usaMedicamentos = "Não";
   String genero = "Masculino";
-  
 
   // Estado do botão Salvar
   bool isDadosPessoaisValid = false;
   bool isDadosMedicosValid = false;
 
   Map<String, dynamic>? dadosPessoais = {};
+  Map<String, dynamic>? dadosMedicos = {};
 
-  int altura = 170;
+  int altura = 0;
   double peso = 0;
   double aux2 = 0;
+  double aux = 0;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    //_buscarDados();
+    _buscarDados();
 
     // Adiciona listeners para verificar o estado dos campos
     nomeController.addListener(_validateDadosPessoais);
@@ -58,24 +59,37 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
   }
 
   Future<void> _buscarDados() async {
-
     dadosPessoais = await _firestoreService.getDadosPessoais();
+    dadosMedicos = await _firestoreService.getDadosMedicos();
+
+    var ultimaAltura = await _firestoreService.getAltura();
+    if (ultimaAltura != null) {
+      setState(() {
+        altura = ultimaAltura['altura'];
+      });
+    }
 
     var ultimoPeso = await _firestoreService.buscarUltimoPeso();
     if (ultimoPeso != null) {
       setState(() {
         peso = ultimoPeso['peso'];
+        aux2 = peso;
         peso *= 10;
       });
-    } 
-    
+    }
 
     setState(() {
-      nomeController.text = dadosPessoais?['nome'] ?? '';
-      sobrenomeController.text = dadosPessoais?['sobrenome'] ?? '';
-      celularController.text = dadosPessoais?['celular'] ?? '';
-      nascimentoController.text = dadosPessoais?['dataNascimento'] ?? '';
-      genero = dadosPessoais?['genero'] ?? '';
+      nomeController.text = dadosPessoais?['nome'] ?? 'Nome';
+      sobrenomeController.text = dadosPessoais?['sobrenome'] ?? 'Sobrenome';
+      celularController.text = dadosPessoais?['celular'] ?? '(xx) xxxxx-xxxx';
+      nascimentoController.text =
+          dadosPessoais?['dataNascimento'] ?? 'xx/xx/xxxx';
+      genero = dadosPessoais?['genero'] ?? '------';
+      diagnosticoController.text =
+          dadosMedicos?['dataDiagnostico'] ?? 'xx/xx/xxxx';
+      tipoDiabetes = dadosMedicos?['tipo'] ?? '------';
+      terapia = dadosMedicos?['terapia'] ?? '------';
+      usaMedicamentos = dadosMedicos?['usaMedicamentos'] ?? '------';
     });
   }
 
@@ -86,6 +100,33 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
       celular: celularController.text,
       dataNascimento: nascimentoController.text,
       genero: genero,
+    );
+
+    // Exibir mensagem de sucesso
+    // ignore: use_build_context_synchronously
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Dados salvos com sucesso!')),
+    );
+
+    // Voltar para a tela inicial
+    // ignore: use_build_context_synchronously
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
+  Future<void> _saveDadosMedicos() async {
+    await _firestoreService.salvarDadosMedicos(
+      dataDiagnostico: diagnosticoController.text,
+      tipo: tipoDiabetes,
+      terapia: terapia,
+      usaMedicamentos: usaMedicamentos,
+    );
+
+    await _firestoreService.salvarAltura(
+      altura: altura,
+    );
+
+    await _firestoreService.salvarPeso(
+      peso: aux2,
     );
 
     // Exibir mensagem de sucesso
@@ -115,7 +156,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
           terapia != null &&
           usaMedicamentos != null &&
           diagnosticoController.text.isNotEmpty &&
-          peso!= null ;
+          peso != null;
     });
   }
 
@@ -193,7 +234,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
           _buildDropdownField(
             label: "Gênero*",
             value: genero,
-            items: ["Feminino", "Masculino", "Outro"],
+            items: ["------", "Feminino", "Masculino", "Outro"],
             onChanged: (value) {
               setState(() {
                 genero = value ?? " ";
@@ -250,13 +291,15 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
                       padding: const EdgeInsets.symmetric(vertical: 12.0),
                       decoration: BoxDecoration(
                         border: Border.all(
-                            color: Colors.black.withAlpha(140)), // Contorno cinza claro
+                            color: Colors.black
+                                .withAlpha(140)), // Contorno cinza claro
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       child: Center(
                         child: Text(
-                          " Kg",
-                          style: const TextStyle(fontSize: 16, color: Colors.grey),
+                          "$aux2 Kg",
+                          style:
+                              const TextStyle(fontSize: 16, color: Colors.grey),
                         ),
                       ),
                     ),
@@ -282,13 +325,15 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
                       padding: const EdgeInsets.symmetric(vertical: 12.0),
                       decoration: BoxDecoration(
                         border: Border.all(
-                            color: Colors.black.withAlpha(140)), // Contorno cinza claro
+                            color: Colors.black
+                                .withAlpha(140)), // Contorno cinza claro
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       child: Center(
                         child: Text(
-                          " Kg",
-                          style: const TextStyle(fontSize: 16, color: Colors.grey),
+                          "$altura cm",
+                          style:
+                              const TextStyle(fontSize: 16, color: Colors.grey),
                         ),
                       ),
                     ),
@@ -302,6 +347,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
             label: "Tipo de Diabetes*",
             value: tipoDiabetes,
             items: [
+              "------",
               "Diabetes Tipo 1",
               "Diabetes Tipo 2",
               "Gestacional",
@@ -322,6 +368,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
             label: "Terapia*",
             value: terapia,
             items: [
+              "------",
               "Caneta",
               "Seringa",
               "Bomba de Insulina",
@@ -339,7 +386,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
           _buildDropdownField(
             label: "Usa Medicamentos*",
             value: usaMedicamentos,
-            items: ["Sim", "Não"],
+            items: ["------", "Sim", "Não"],
             onChanged: (value) {
               setState(() {
                 usaMedicamentos = value ?? " ";
@@ -358,6 +405,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
             isEnabled: isDadosMedicosValid,
             onPressed: () {
               if (isDadosMedicosValid) {
+                _saveDadosMedicos();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Dados Médicos Salvos!')),
                 );
@@ -454,7 +502,11 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
                     child: Text(item),
                   ))
               .toList(),
-          onChanged: onChanged,
+          onChanged: (selectedValue) {
+            if (selectedValue != "------") {
+              onChanged(selectedValue);
+            }
+          },
           decoration: InputDecoration(
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -491,6 +543,10 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
   }
 
   void _alterarAltura() {
+    int aux3 = altura;
+    if (aux3 == 0) {
+      aux3 = 170;
+    }
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -519,7 +575,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
                   SimpleRulerPicker(
                     minValue: 120, // Valor mínimo da altura
                     maxValue: 220, // Valor máximo da altura
-                    initialValue: altura, // Altura inicial
+                    initialValue: aux3, // Altura inicial
                     onValueChanged: (value) {
                       setState(() {
                         altura = value;
@@ -553,7 +609,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
                       ElevatedButton(
                         onPressed: () {
                           Navigator.pop(context);
-                          // Salvar altura aqui, se necessário
+                          _buscarDados();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
@@ -578,7 +634,9 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
 
   // Função para alterar a altura e recalcular o IMC
   void _alterarPeso() {
-    aux2 = peso;
+    if (peso == 0) {
+      peso = (3000 + 200) / 2;
+    }
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -610,9 +668,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
                     initialValue: peso.toInt(), // Altura inicial
                     onValueChanged: (value) {
                       setState(() {
-
                         aux2 = value / 10;
-
                       });
                     },
                     scaleLabelSize: 16, // Tamanho da fonte das labels
@@ -641,8 +697,9 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
                       ),
                       const SizedBox(width: 30),
                       ElevatedButton(
-                        onPressed: () async {
-                          peso = aux2;
+                        onPressed: ()  {
+                          _buscarDados();
+                          Navigator.pop(context);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,

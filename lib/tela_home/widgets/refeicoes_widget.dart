@@ -165,7 +165,7 @@ class _RefeicoesWidgetState extends State<RefeicoesWidget> {
         Icon(Icons.filter_alt, color: Colors.grey),
         Text(
           "Filtro: ",
-          style: GoogleFonts.cookie(fontSize: 24),
+          style: TextStyle(fontSize: 18),
         ),
         DropdownButton<String>(
           value: _selectedFilter,

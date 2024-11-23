@@ -7,6 +7,7 @@ class ReceitaScreen extends StatefulWidget {
   const ReceitaScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ReceitaScreenState createState() => _ReceitaScreenState();
 }
 
@@ -19,7 +20,6 @@ class _ReceitaScreenState extends State<ReceitaScreen>
   String output = '';
   String iaRecommendation = "Carregando recomendação...";
   final TextEditingController _controller = TextEditingController();
-  bool _isLoading = false;
   String promptMessage = "Faça sua pesquisa!";
 
   // Método para verificar se uma linha contém `**` e formatar o texto dinamicamente
@@ -30,12 +30,12 @@ class _ReceitaScreenState extends State<ReceitaScreen>
         children: text.split('\n').map((line) {
           if (line.contains('**')) {
             return TextSpan(
-              text: line.replaceAll('**', '') + '\n',
+              text: '${line.replaceAll('**', '')}\n',
               style: const TextStyle(fontWeight: FontWeight.bold),
             );
           } else {
             return TextSpan(
-              text: line + '\n',
+              text: '$line\n',
               style: const TextStyle(fontWeight: FontWeight.normal),
             );
           }
@@ -51,15 +51,20 @@ class _ReceitaScreenState extends State<ReceitaScreen>
     });
 
     try {
-      gemini.streamGenerateContent("Me diga apenas o nome de uma refeição bem gostosa que pode ser feita por diabeticos, sem receita").listen((value) {
+      gemini
+          .streamGenerateContent(
+              "Me diga apenas o nome de uma refeição bem gostosa que pode ser feita por diabeticos, sem receita")
+          .listen((value) {
         setState(() {
-          iaRecommendation = value.output ?? "Recomendação indisponível no momento.";
+          iaRecommendation =
+              value.output ?? "Recomendação indisponível no momento.";
         });
       });
     } catch (error) {
       debugPrint('Erro ao obter recomendação: $error');
       setState(() {
-        iaRecommendation = "Erro ao obter recomendação. Tente novamente mais tarde.";
+        iaRecommendation =
+            "Erro ao obter recomendação. Tente novamente mais tarde.";
       });
     }
   }
@@ -68,11 +73,11 @@ class _ReceitaScreenState extends State<ReceitaScreen>
     if (input.isEmpty) return;
 
     // Concatenação do texto enviado ao prompt
-    final String formattedInput = "Me gere uma resposta para o seguinte prompt caso tiver relação com receitas e culinária, caso não tiver, me retorne apenas 'Desculpe, não identifiquei o seu pedido como uma receita...': $input, lembre-se que sou diabético e não posso consumir açúcar, então por favor, me retorne uma receita que não contenha açúcar.";
+    final String formattedInput =
+        "Me gere uma resposta para o seguinte prompt caso tiver relação com receitas e culinária, caso não tiver, me retorne apenas 'Desculpe, não identifiquei o seu pedido como uma receita...': $input, lembre-se que sou diabético e não posso consumir açúcar, então por favor, me retorne uma receita que não contenha açúcar.";
 
     setState(() {
       _controller.text = '';
-      _isLoading = true;
       output = '';
       promptMessage = "Pedido: $input";
     });
@@ -84,15 +89,12 @@ class _ReceitaScreenState extends State<ReceitaScreen>
         });
       });
 
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() {});
     } catch (error, stacktrace) {
       debugPrint('Erro ao obter resposta: $error');
       debugPrint('Stacktrace: $stacktrace');
       setState(() {
         output = 'Erro de conexão ou de processamento. Tente novamente.';
-        _isLoading = false;
       });
     }
   }
@@ -205,15 +207,17 @@ class _ReceitaScreenState extends State<ReceitaScreen>
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                 promptMessage,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+                style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
               ),
             ),
-            const SizedBox(height: 5),
+            const SizedBox(height: 15),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Container(
                 width: double.infinity,
-                height: 350,
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 255, 255, 255),
@@ -226,31 +230,40 @@ class _ReceitaScreenState extends State<ReceitaScreen>
                     ),
                   ],
                 ),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: _buildFormattedText(output),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: 30, // Altura mínima
+                        maxHeight:
+                            constraints.maxHeight, // Respeita a altura máxima
                       ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: IconButton(
-                        icon: const Icon(Icons.copy, color: Colors.blue),
-                        onPressed: () {
-                          Clipboard.setData(ClipboardData(text: output));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Texto copiado para a área de transferência!'),
+                      child: Column(
+                        children: [
+                           _buildFormattedText(output),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: IconButton(
+                              icon: const Icon(Icons.copy, color: Colors.blue),
+                              onPressed: () {
+                                Clipboard.setData(ClipboardData(text: output));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'Texto copiado para a área de transferência!'),
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        },
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
             ),
+            const SizedBox(height: 15),
           ],
         ),
       ),
@@ -274,7 +287,8 @@ class _ReceitaScreenState extends State<ReceitaScreen>
             ),
             const SizedBox(width: 8),
             IconButton(
-              icon: const Icon(Icons.send, color: Color.fromARGB(255, 14, 177, 247)),
+              icon: const Icon(Icons.send,
+                  color: Color.fromARGB(255, 14, 177, 247)),
               onPressed: () {
                 obterReceita(_controller.text);
               },

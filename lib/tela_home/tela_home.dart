@@ -2,7 +2,6 @@
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:main/firebase/firestore_service.dart';
 import 'package:main/regua/simple_ruler_picker.dart';
 import 'package:main/tela_home/widgets/graficos_linha.dart';
@@ -31,9 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
   double pesoAtual = 0;
   double maiorPeso = 0;
   double menorPeso = 0;
-  int altura = 170;
+  int altura = 0;
   double imc = 0;
-  bool _isLoading = true;
+  
   bool isCm = true; // Unidade atual
 
   @override
@@ -51,6 +50,13 @@ class _HomeScreenState extends State<HomeScreen> {
     _pesoData = await firebaseService.getPesoData();
     _ultimasPressao = await firebaseService.getUltimasMedicoesPressao();
 
+    var ultimaAltura = await firebaseService.getAltura();
+    if (ultimaAltura != null) {
+      setState(() {
+        altura = ultimaAltura['altura'];
+      });
+    }
+
     List<FlSpot> spots = _data.map((entry) {
       DateTime data = entry['data'];
       double valorGlicemia = entry['valor'];
@@ -62,7 +68,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }).toList();
 
     setState(() {
-      _isLoading = false;
       glicemiaSpots = spots;
       pesoAtual = _pesoData?['pesoAtual'] ?? 0;
       maiorPeso = _pesoData?['maiorPeso'] ?? 0;
@@ -96,18 +101,23 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         centerTitle: true,
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+      body: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 16),
-                    Text(
-                      ' Minhas Medições',
-                      style: GoogleFonts.cookie(fontSize: 34),
+                    Row(              
+                      children: [
+                        const SizedBox(width: 15),
+                        Icon(Icons.medical_information_rounded),
+                        const SizedBox(width: 5),
+                        Text(
+                          ' Minhas Medições',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ],
                     ),
                     GraficosLinha(
                         nutrientesPorDia: _nutricaoDoDia,
@@ -123,9 +133,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       ultimasPressao: _ultimasPressao,
                     ),
                     const SizedBox(height: 20),
-                    Text(
-                      ' Minhas Refeições',
-                      style: GoogleFonts.cookie(fontSize: 34),
+                    Row(
+                      children: [
+                        const SizedBox(width: 15),
+                        Icon(Icons.fastfood),
+                        const SizedBox(width: 5),
+                        Text(
+                          ' Minhas Refeições',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     RefeicoesWidget(refeicoesDoDia: _refeicoesDoDia),
@@ -138,6 +155,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Função para alterar a altura e recalcular o IMC
   void _alterarAltura() {
+    int aux3 = altura;
+    if(aux3 == 0){
+      aux3 = 170;
+    }
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -166,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   SimpleRulerPicker(
                     minValue: 120, // Valor mínimo da altura
                     maxValue: 220, // Valor máximo da altura
-                    initialValue: altura, // Altura inicial
+                    initialValue: aux3, // Altura inicial
                     onValueChanged: (value) {
                       setState(() {
                         altura = value;
@@ -200,7 +221,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(width: 30),
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async{
+
+                          await firebaseService.salvarAltura(
+                            altura: altura,
+                          );
+                          _buscarDados();
+                          // ignore: use_build_context_synchronously
                           Navigator.pop(context);
                           // Salvar altura aqui, se necessário
                         },

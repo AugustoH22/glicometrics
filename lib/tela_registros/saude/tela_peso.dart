@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:main/firebase/firestore_service.dart';
@@ -18,16 +17,15 @@ class PesoScreen extends StatefulWidget {
 }
 
 class _PesoScreenState extends State<PesoScreen> {
-  String peso = 'Carregando...';
   String dataHora = '';
   List<Map<String, dynamic>> historicoPesos = [];
-  double aux = 0;
+  double peso = 0;
   double aux2 = 0;
   Map<String, double>? _pesoData;
   double pesoAtual = 0;
   double maiorPeso = 0;
   double menorPeso = 0;
-   int altura = 170;
+  int altura = 0;
   double imc = 0;
 
   final FirestoreService _firestoreService = FirestoreService();
@@ -40,29 +38,28 @@ class _PesoScreenState extends State<PesoScreen> {
 
   Future<void> carregarDados() async {
     _pesoData = await _firestoreService.getPesoData();
+
+    var ultimaAltura = await _firestoreService.getAltura();
+    if (ultimaAltura != null) {
+      setState(() {
+        altura = ultimaAltura['altura'];
+      });
+    }
     // Buscar último peso
     var ultimoPeso = await _firestoreService.buscarUltimoPeso();
     if (ultimoPeso != null) {
       setState(() {
-        peso = '${ultimoPeso['peso']}';
+        peso = ultimoPeso['peso'];
         dataHora =
             '${ultimoPeso['data'].day}/${ultimoPeso['data'].month}/${ultimoPeso['data'].year} - ${ultimoPeso['hora']}';
-        aux = double.parse(peso);
-        aux *= 10;
+        aux2 = peso;
+        peso *= 10;
         pesoAtual = _pesoData?['pesoAtual'] ?? 0;
         maiorPeso = _pesoData?['maiorPeso'] ?? 0;
         menorPeso = _pesoData?['menorPeso'] ?? 0;
         imc = (pesoAtual / ((altura / 100) * (altura / 100)));
       });
-    } else {
-      setState(() {
-        peso = 'Sem dados';
-        dataHora = '';
-      });
-      if (kDebugMode) {
-        print(aux);
-      }
-    }
+    } 
 
     // Buscar histórico de pesos
     var historico = await _firestoreService.buscarHistoricoPesos();
@@ -153,12 +150,14 @@ class _PesoScreenState extends State<PesoScreen> {
             children: [
               // Card do último peso salvo
               Center(
-                child: GraficoPeso(pesoAtual: pesoAtual,
-                      maiorPeso: maiorPeso,
-                      menorPeso: menorPeso,
-                      imc: imc,
-                      altura: altura,
-                      alterarAltura: _alterarAltura,),
+                child: GraficoPeso(
+                  pesoAtual: pesoAtual,
+                  maiorPeso: maiorPeso,
+                  menorPeso: menorPeso,
+                  imc: imc,
+                  altura: altura,
+                  alterarAltura: _alterarAltura,
+                ),
               ),
               const SizedBox(height: 20),
               const Text(
@@ -267,6 +266,10 @@ class _PesoScreenState extends State<PesoScreen> {
   }
 
   void _alterarAltura() {
+    int aux3 = altura;
+    if(aux3 == 0){
+      aux3 = 170;
+    }
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -295,7 +298,7 @@ class _PesoScreenState extends State<PesoScreen> {
                   SimpleRulerPicker(
                     minValue: 120, // Valor mínimo da altura
                     maxValue: 220, // Valor máximo da altura
-                    initialValue: altura, // Altura inicial
+                    initialValue: aux3, // Altura inicial
                     onValueChanged: (value) {
                       setState(() {
                         altura = value;
@@ -312,8 +315,6 @@ class _PesoScreenState extends State<PesoScreen> {
                     lineStroke: 2, // Largura das linhas
                     height: 150, // Altura total da régua
                   ),
-                  
-                  
                   const SizedBox(height: 50),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -329,14 +330,22 @@ class _PesoScreenState extends State<PesoScreen> {
                       ),
                       const SizedBox(width: 30),
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          await _firestoreService.salvarAltura(
+                            altura: altura,
+                          );
+                          carregarDados();
+                          // ignore: use_build_context_synchronously
                           Navigator.pop(context);
                           // Salvar altura aqui, se necessário
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                         ),
-                        child: const Text("SALVAR", style: TextStyle(color: Colors.white),),
+                        child: const Text(
+                          "SALVAR",
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                       const SizedBox(width: 30),
                     ],
@@ -353,7 +362,9 @@ class _PesoScreenState extends State<PesoScreen> {
 
   // Função para alterar a altura e recalcular o IMC
   void _alterarPeso() {
-    aux2 = double.parse(peso);
+    if(peso == 0){
+      peso = (3000+200)/2;
+    }
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -382,7 +393,7 @@ class _PesoScreenState extends State<PesoScreen> {
                   SimpleRulerPickerPeso(
                     minValue: 200, // Valor mínimo da altura
                     maxValue: 3000, // Valor máximo da altura
-                    initialValue: aux.toInt(), // Altura inicial
+                    initialValue: peso.toInt(), // Altura inicial
                     onValueChanged: (value) {
                       setState(() {
                         // ignore: unused_local_variable

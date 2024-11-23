@@ -4,29 +4,34 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:main/autentificacao/auth_screen.dart';
 import 'package:main/core/env.dart';
+import 'package:main/firebase/firestore_service.dart';
+import 'package:main/primeiro_acesso/tela_bem_vindo.dart';
 import 'package:main/tela_conta/tela_conta.dart';
 import 'package:main/tela_home/tela_home.dart';
 import 'package:main/tela_receita/tela_receita.dart';
 import 'package:main/tela_registros/tela_registros.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth import
+import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase/firebase_options.dart';
-// ignore: depend_on_referenced_packages
-import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await initializeDateFormatting('pt_BR', null);
 
-  Gemini.init(apiKey: Env.apiKey);
+  Gemini.init(apiKey: Env.apiKey); // Substitua pela sua chave de API
   runApp(const GlicoMetricsApp());
 }
 
 class GlicoMetricsApp extends StatelessWidget {
   const GlicoMetricsApp({super.key});
+
+  Future<bool> _fetchAceitaTermos() async {
+    final FirestoreService firebaseService = FirestoreService();
+    var docAceitaTermos = await firebaseService.getAceitaTermos();
+    return docAceitaTermos?['aceita'] ?? false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +43,25 @@ class GlicoMetricsApp extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasData) {
-            return const MainScreen(); // Se o usuário estiver autenticado, vai para a tela principal
+            return FutureBuilder<bool>(
+              future: _fetchAceitaTermos(),
+              builder: (context, aceitaSnapshot) {
+                if (aceitaSnapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (aceitaSnapshot.hasError) {
+                  return const Center(child: Text("Erro ao carregar termos."));
+                } else {
+                  final aceitaTermos = aceitaSnapshot.data ?? false;
+                  if (aceitaTermos) {
+                    return const MainScreen();
+                  } else {
+                    return const TelaBemVindo();
+                  }
+                }
+              },
+            );
           } else {
-            return const AuthScreen(); // Se o usuário não estiver autenticado, vai para a tela de login
+            return const AuthScreen();
           }
         },
       ),
