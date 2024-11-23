@@ -234,7 +234,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
           _buildDropdownField(
             label: "Gênero*",
             value: genero,
-            items: ["------", "Feminino", "Masculino", "Outro"],
+            items: ["Feminino", "Masculino", "Outro"],
             onChanged: (value) {
               setState(() {
                 genero = value ?? " ";
@@ -347,7 +347,6 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
             label: "Tipo de Diabetes*",
             value: tipoDiabetes,
             items: [
-              "------",
               "Diabetes Tipo 1",
               "Diabetes Tipo 2",
               "Gestacional",
@@ -368,7 +367,6 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
             label: "Terapia*",
             value: terapia,
             items: [
-              "------",
               "Caneta",
               "Seringa",
               "Bomba de Insulina",
@@ -386,7 +384,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage>
           _buildDropdownField(
             label: "Usa Medicamentos*",
             value: usaMedicamentos,
-            items: ["------", "Sim", "Não"],
+            items: ["Sim", "Não"],
             onChanged: (value) {
               setState(() {
                 usaMedicamentos = value ?? " ";
