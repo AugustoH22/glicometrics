@@ -67,15 +67,15 @@ class GraficoPeso extends StatelessWidget {
               // Exibição do valor do IMC e classificação
               Text(
                 imc.toStringAsFixed(1),
-                style: GoogleFonts.cookie(
-                    fontSize: 40, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: 30, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
 
               // Classificação do IMC
               Text(
                 _getIMCClassificacao(imc),
-                style: GoogleFonts.cookie(fontSize: 20, color: Colors.orange),
+                style: TextStyle(fontSize: 14, color: Colors.orange),
               ),
               const SizedBox(height: 16),
 
@@ -88,7 +88,7 @@ class GraficoPeso extends StatelessWidget {
                 children: [
                   Text(
                     "Altura:",
-                    style: GoogleFonts.cookie(fontSize: 24),
+                    style: TextStyle(fontSize: 14),
                   ),
                   const Spacer(), // Adiciona espaço flexível entre os itens
                   InkWell(
@@ -104,8 +104,8 @@ class GraficoPeso extends StatelessWidget {
                       ),
                       child: Text(
                         "${altura.toInt()}",
-                        style: GoogleFonts.cookie(
-                            fontSize: 24, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -113,7 +113,7 @@ class GraficoPeso extends StatelessWidget {
                       width: 5), // Espaço entre o Container e o texto "cm"
                   Text(
                     "cm",
-                    style: GoogleFonts.cookie(fontSize: 24),
+                    style: TextStyle(fontSize: 14),
                   ),
                 ],
               ),
@@ -130,10 +130,10 @@ class GraficoPeso extends StatelessWidget {
       children: [
         Text(
           valor.toStringAsFixed(1),
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         Text(label,
-            style: TextStyle(fontSize: 18, color: Colors.grey)),
+            style: TextStyle(fontSize: 14, color: Colors.grey)),
       ],
     );
   }

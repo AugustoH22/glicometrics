@@ -42,10 +42,10 @@ class GraficosLinha extends StatelessWidget {
           child: glicemiaSpots.isEmpty
               ? const Center(child: Text('Sem dados de glicemia'))
               : Padding(
-                  padding: const EdgeInsets.fromLTRB(0.0, 40.0, 30.0, 0.0),
+                  padding: const EdgeInsets.fromLTRB(10.0, 40.0, 30.0, 0.0),
                   child: LineChart(
                     LineChartData(
-                      gridData: FlGridData(show: false), // Oculta as grades
+                      gridData: FlGridData(show: true), // Oculta as grades
                       titlesData: FlTitlesData(
                         topTitles: AxisTitles(
                           sideTitles:
@@ -58,10 +58,10 @@ class GraficosLinha extends StatelessWidget {
                         leftTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
-                            reservedSize: 60,
-                            interval: 40,
+                            reservedSize: 30,
+                            interval: 50,
                             getTitlesWidget: (value, _) {
-                              if (value == 0) {
+                              if (value == 0 || value == 220) {
                                 return const SizedBox.shrink();
                               }
                               return Column(
@@ -69,11 +69,6 @@ class GraficosLinha extends StatelessWidget {
                                 children: [
                                   Text(
                                     '${value.toInt()}',
-                                    style: GoogleFonts.cookie(
-                                        color: Colors.black, fontSize: 12),
-                                  ),
-                                  Text(
-                                    'mg/dL',
                                     style: GoogleFonts.cookie(
                                         color: Colors.black, fontSize: 12),
                                   ),
@@ -103,19 +98,21 @@ class GraficosLinha extends StatelessWidget {
                         show: true,
                         border: Border(
                           bottom: BorderSide(
-                              color: Colors.black.withOpacity(0.3), width: 2),
+                              color: Colors.black.withOpacity(0.3), width: 1),
+                          left: BorderSide(
+                            color: Colors.black.withOpacity(0.3), width: 1),
                         ),
                       ),
                       minX: 0,
                       maxX: 30,
                       minY: 0,
-                      maxY: 200,
+                      maxY: 220,
                       lineBarsData: [
                         LineChartBarData(
                           spots: glicemiaSpots,
                           isCurved: true,
-                          color: Colors.cyanAccent,
-                          barWidth: 3,
+                          color: const Color.fromARGB(255, 24, 120, 255),
+                          barWidth: 1.5,
                           isStrokeCapRound: true,
                           dotData: FlDotData(show: false),
                         ),
@@ -184,7 +181,7 @@ class GraficosLinha extends StatelessWidget {
                   
                   dataSource: nutrientesPorDia.reversed.toList(),
                   xValueMapper: (Map<String, dynamic> data, _) =>
-                      _getFormattedDate((data['data'] as DateTime)),
+                      _getFormattedDate((data['data'] as DateTime).add(const Duration(days: 1))),
                   yValueMapper: (Map<String, dynamic> data, _) =>
                       data['calorias'] ?? 0,
                   yAxisName: 'Calorias',
@@ -207,7 +204,7 @@ class GraficosLinha extends StatelessWidget {
                 LineSeries<Map<String, dynamic>, String>(
                   dataSource: nutrientesPorDia.reversed.toList(),
                   xValueMapper: (Map<String, dynamic> data, _) =>
-                      _getFormattedDate((data['data'] as DateTime)),
+                      _getFormattedDate((data['data'] as DateTime).add(const Duration(days: 1))),
                   yValueMapper: (Map<String, dynamic> data, _) =>
                       data['proteinas'] ?? 0,
                   yAxisName: 'Nutrientes',
@@ -218,7 +215,7 @@ class GraficosLinha extends StatelessWidget {
                 LineSeries<Map<String, dynamic>, String>(
                   dataSource: nutrientesPorDia.reversed.toList(),
                   xValueMapper: (Map<String, dynamic> data, _) =>
-                      _getFormattedDate(data['data'] as DateTime),
+                      _getFormattedDate((data['data'] as DateTime).add(const Duration(days: 1))),
                   yValueMapper: (Map<String, dynamic> data, _) =>
                       data['gorduras'] ?? 0,
                   yAxisName: 'Nutrientes',

@@ -64,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
           .difference(DateTime.now().subtract(const Duration(days: 30)))
           .inDays
           .toDouble();
+      x += 1;
       return FlSpot(x, valorGlicemia);
     }).toList();
 

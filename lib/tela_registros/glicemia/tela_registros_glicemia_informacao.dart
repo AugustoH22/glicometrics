@@ -25,14 +25,13 @@ class _InformacaoScreenState extends State<InformacaoScreen> {
 
   Future<void> _saveGlicemiaData() async {
     DateTime dataComHora = widget.selectedDate?.copyWith(
-                    hour: widget.selectedTime?.hour,
-                    minute: widget.selectedTime?.minute,
-                    second:
-                        0, // Você pode ajustar para outros valores se necessário
-                    millisecond: 0,
-                    microsecond: 0,
-                  ) ??
-                  DateTime.now();
+          hour: widget.selectedTime?.hour,
+          minute: widget.selectedTime?.minute,
+          second: 0, // Você pode ajustar para outros valores se necessário
+          millisecond: 0,
+          microsecond: 0,
+        ) ??
+        DateTime.now();
     if (widget.selectedDate != null && widget.selectedTime != null) {
       await _firestoreService.salvarGlicemia(
         data: dataComHora,
@@ -151,8 +150,16 @@ class _InformacaoScreenState extends State<InformacaoScreen> {
                         value: glicemiaType,
                         hint: const Text('Selecione o tipo'),
                         isExpanded: true,
-                        items: ['Jejum', 'Pós-prandial', 'Aleatória']
-                            .map((String value) {
+                        items: [
+                          'Antes do Café da Manhã',
+                          'Depois do Café da Manhã',
+                          'Antes do Almoço',
+                          'Depois do Almoço',
+                          'Antes do Jantar',
+                          'Depois do Jantar',
+                          'Extra',
+                          'Antes de Dormir / Madrugada',
+                        ].map((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
                             child: Text(value),
