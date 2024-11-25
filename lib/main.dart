@@ -13,12 +13,16 @@ import 'package:main/tela_registros/tela_registros.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase/firebase_options.dart';
+// ignore: depend_on_referenced_packages
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  await initializeDateFormatting('pt_BR', null);
 
   Gemini.init(apiKey: Env.apiKey); // Substitua pela sua chave de API
   runApp(const GlicoMetricsApp());
