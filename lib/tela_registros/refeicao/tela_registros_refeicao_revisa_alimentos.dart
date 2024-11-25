@@ -332,7 +332,7 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
                         actions: <Widget>[
                           TextButton(
                             onPressed: () {
-                              Navigator.of(context).pop();
+                              Navigator.of(context).popUntil((route) => route.isFirst);
                             },
                             child: const Text('OK'),
                           ),
@@ -344,12 +344,14 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
                   // Salvar refeição favorita no Firestore
                   await _firestoreService.salvarRefeicaoFavorita(
                       nomeRefeicaoFavorita, refeicaoData);
+                  await _firestoreService.salvarRefeicao(refeicaoData);
                 } else {
                   // Salvar refeição no Firestore
                   await _firestoreService.salvarRefeicao(refeicaoData);
+                  _showSuccessDialog();
                 }
 
-                _showSuccessDialog();
+                
               } catch (e) {
                 _showErrorDialog();
               }
@@ -407,17 +409,23 @@ class _RevisaoAlimentosScreenState extends State<RevisaoAlimentosScreen> {
 
   // Função para construir o switch de favoritar refeição
   Widget _buildSwitchFavorito() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Text('Favoritar refeição'),
-        Switch(
-          value: isFavorited,
-          onChanged: (value) {
-            setState(() {
-              isFavorited = value;
-            });
-          },
+        Row(
+          children: [
+            const SizedBox(width: 87),
+            const Text('Favoritar refeição'),
+            const SizedBox(width: 10),
+            Switch(
+              value: isFavorited,
+              onChanged: (value) {
+                setState(() {
+                  isFavorited = value;
+                });
+              },
+            ),
+          ],
         ),
       ],
     );

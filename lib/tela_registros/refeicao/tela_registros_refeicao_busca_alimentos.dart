@@ -51,14 +51,16 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
   }
 
   Future<void> _fetchRecentSearches() async {
-    List<Map<String, dynamic>> results = await _firestoreService.fetchRecentSearches();
+    List<Map<String, dynamic>> results =
+        await _firestoreService.fetchRecentSearches();
     setState(() {
       recentSearches = results;
     });
   }
 
   Future<void> _fetchFavoriteMeals() async {
-    List<Map<String, dynamic>> meals = await _firestoreService.fetchFavoriteMeals(widget.selectedMeal);
+    List<Map<String, dynamic>> meals =
+        await _firestoreService.fetchFavoriteMeals(widget.selectedMeal);
     setState(() {
       favoriteMeals = meals;
     });
@@ -78,7 +80,8 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
       isLoading = true;
     });
 
-    List<Map<String, dynamic>> results = await _firestoreService.searchAlimentos(query);
+    List<Map<String, dynamic>> results =
+        await _firestoreService.searchAlimentos(query);
 
     setState(() {
       searchResults = results;
@@ -86,7 +89,8 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
     });
   }
 
-  void _addFoodToSelection(Map<String, dynamic> food, String porcao, int localQuantity) {
+  void _addFoodToSelection(
+      Map<String, dynamic> food, String porcao, int localQuantity) {
     setState(() {
       selectedItems!.add({
         'porcao': porcao,
@@ -98,6 +102,19 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
       if (!recentSearches.any((recent) => recent['nome'] == food['nome'])) {
         recentSearches.add(food);
         _firestoreService.saveRecentSearch(food); // Salvar a pesquisa recente
+      }
+    });
+  }
+
+  void _processFavoriteMealItems(List<dynamic> mealData) {
+    setState(() {
+      for (var alimento in mealData) {
+        selectedItems!.add({
+          'food': alimento['food'] ?? 'Desconhecido', // Prevenção de nulos
+          'quantity': alimento['quantity'] ?? 1, // Prevenção de nulos
+          'porcao':
+              alimento['porcao'] ?? 'Porção não definida', // Prevenção de nulos
+        });
       }
     });
   }
@@ -217,54 +234,66 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            TextField(
-              decoration: const InputDecoration(
-                labelText: 'Buscar alimento',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
-              ),
-              onChanged: (value) {
-                _searchAlimentos(value);
-              },
-            ),
-            const SizedBox(height: 20),
-            if (!isSearching) ...[
-              const Text('Pesquisas Recentes'),
-              Wrap(
-                children: recentSearches
-                    .map((search) => GestureDetector(
-                          onTap: () => _showFoodPopup(context, search),
-                          child: Chip(label: Text(search['nome'] ?? 'Nome não disponível')),
-                        ))
-                    .toList(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              TextField(
+                decoration: const InputDecoration(
+                  labelText: 'Buscar alimento',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.search),
+                ),
+                onChanged: (value) {
+                  _searchAlimentos(value);
+                },
               ),
               const SizedBox(height: 20),
-              const Text('Refeições Favoritas'),
-              Expanded(
-                child: ListView.builder(
+              if (!isSearching) ...[
+                const Text('Pesquisas Recentes'),
+                const SizedBox(height: 10),
+                Wrap(
+                  children: recentSearches
+                      .map((search) => GestureDetector(
+                            onTap: () => _showFoodPopup(context, search),
+                            child: Chip(
+                              label:
+                                  Text(search['nome'] ?? 'Nome não disponível'),
+                            ),
+                          ))
+                      .toList(),
+                ),
+                const SizedBox(height: 20),
+                const Text('Refeições Favoritas'),
+                const SizedBox(height: 10),
+                ListView.builder(
+                  shrinkWrap: true, // Evita o uso de Expanded
+                  physics:
+                      const NeverScrollableScrollPhysics(), // Remove scroll interno
                   itemCount: favoriteMeals.length,
                   itemBuilder: (context, index) {
                     final meal = favoriteMeals[index];
                     return ListTile(
-                      title: Text(meal['nome'] ?? 'Nome desconhecido'),
-                      onTap: () => _navigateToRevisaoAlimentosScreen(context),
+                      title: Text(meal['nomeFavorito'] ?? 'Nome desconhecido'),
+                      onTap: () {
+                        _processFavoriteMealItems(meal['items']);
+                        _navigateToRevisaoAlimentosScreen(context);
+                      },
                     );
                   },
                 ),
-              ),
-            ],
-            if (isSearching)
-              Expanded(
-                child: isLoading
+              ],
+              if (isSearching)
+                isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : searchResults.isNotEmpty
                         ? ListView.builder(
+                            shrinkWrap: true, // Evita o uso de Expanded
+                            physics:
+                                const NeverScrollableScrollPhysics(), // Remove scroll interno
                             itemCount: searchResults.length,
                             itemBuilder: (context, index) {
                               final alimento = searchResults[index];
@@ -274,9 +303,10 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
                               );
                             },
                           )
-                        : const Center(child: Text('Nenhum alimento encontrado')),
-              ),
-          ],
+                        : const Center(
+                            child: Text('Nenhum alimento encontrado')),
+            ],
+          ),
         ),
       ),
     );
