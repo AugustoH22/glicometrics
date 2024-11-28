@@ -44,29 +44,65 @@ class GlicoMetricsApp extends StatelessWidget {
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
+          // Mostra indicador de carregamento enquanto espera o estado
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasData) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+
+          // Erro na conexão
+          if (snapshot.hasError) {
+            return const Scaffold(
+              body: Center(
+                child: Text(
+                  "Erro ao verificar o estado de autenticação.",
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          }
+
+          // Se o usuário estiver autenticado
+          if (snapshot.hasData) {
             return FutureBuilder<bool>(
               future: _fetchAceitaTermos(),
               builder: (context, aceitaSnapshot) {
                 if (aceitaSnapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (aceitaSnapshot.hasError) {
-                  return const Center(child: Text("Erro ao carregar termos."));
+                  return const Scaffold(
+                    body: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                if (aceitaSnapshot.hasError) {
+                  return const Scaffold(
+                    body: Center(
+                      child: Text(
+                        "Erro ao carregar os termos de aceitação.",
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  );
+                }
+
+                final aceitaTermos = aceitaSnapshot.data ?? false;
+
+                // Redireciona com base nos termos de aceitação
+                if (aceitaTermos) {
+                  return const MainScreen();
                 } else {
-                  final aceitaTermos = aceitaSnapshot.data ?? false;
-                  if (aceitaTermos) {
-                    return const MainScreen();
-                  } else {
-                    return const TelaBemVindo();
-                  }
+                  return const TelaBemVindo();
                 }
               },
             );
-          } else {
-            return const AuthScreen();
           }
+
+          // Usuário não autenticado
+          return const AuthScreen();
         },
       ),
     );
@@ -135,8 +171,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         type: BottomNavigationBarType.fixed,
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         elevation: 5,
-        selectedLabelStyle: GoogleFonts.montserrat(fontSize: 12, fontWeight: FontWeight.bold),
-        unselectedLabelStyle: const TextStyle(fontSize: 0), // Esconde textos não selecionados
+        selectedLabelStyle:
+            GoogleFonts.montserrat(fontSize: 12, fontWeight: FontWeight.bold),
+        unselectedLabelStyle:
+            const TextStyle(fontSize: 0), // Esconde textos não selecionados
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.home_sharp, size: 30),
@@ -168,7 +206,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                     fontSize: 12,
                     color: const Color.fromARGB(255, 69, 133, 228),
                     fontWeight: FontWeight.bold,
-                ),
+                  ),
                 ),
               ],
             ),
@@ -186,7 +224,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                     fontSize: 12,
                     color: const Color.fromARGB(255, 69, 133, 228),
                     fontWeight: FontWeight.bold,
-                ),
+                  ),
                 ),
               ],
             ),
@@ -204,7 +242,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                     fontSize: 12,
                     color: const Color.fromARGB(255, 69, 133, 228),
                     fontWeight: FontWeight.bold,
-                ),
+                  ),
                 ),
               ],
             ),

@@ -106,7 +106,8 @@ class _ContaScreenState extends State<ContaScreen>
                   icon: Icons.logout,
                   text: 'Sair',
                   onTap: () {
-                    AuthService().deslogar();
+                    AuthService().deslogar(context);
+                    // Restart.restartApp();
                   },
                 ),
               ],

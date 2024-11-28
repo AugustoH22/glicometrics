@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:main/autentificacao/auth_service.dart';
 import 'package:main/autentificacao/show_snackbar.dart';
 
@@ -155,6 +154,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         (isEntrando) ? "Entrar" : "Cadastrar",
                       ),
                     ),
+                    /*
                     const SizedBox(height: 16),
                     // Botão para login com Google
                     SignInButton(
@@ -163,7 +163,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         _entrarComGoogle();
                       },
                       text: "Entrar com o Google",
-                    ),
+                    ),*/
                     const SizedBox(height: 16),
                     TextButton(
                       onPressed: () {
@@ -231,7 +231,7 @@ class _AuthScreenState extends State<AuthScreen> {
       },
     );
   }
-
+/*
   _entrarComGoogle() {
     authService.entrarComGoogle().then((String? erro) {
       if (erro != null) {
@@ -239,7 +239,7 @@ class _AuthScreenState extends State<AuthScreen> {
         showSnackBar(context: context, mensagem: erro);
       }
     });
-  }
+  }*/
 
   esqueciMinhaSenhaClicado() {
     String email = _emailController.text;

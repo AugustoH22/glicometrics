@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
@@ -66,7 +67,6 @@ class AuthService {
           .set({
         'aceita': false,
       });
-
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case "email-already-in-use":
@@ -90,10 +90,12 @@ class AuthService {
     return null;
   }
 
-  Future<String?> deslogar() async {
+  Future<String?> deslogar(BuildContext context) async {
     try {
       await _firebaseAuth.signOut();
-      await _googleSignIn.signOut(); // Desloga do Google também
+      await _googleSignIn.signOut(); 
+      // Desloga do Google também
+    
     } on FirebaseAuthException catch (e) {
       return "Erro ao deslogar: ${e.message}";
     }
@@ -133,7 +135,48 @@ class AuthService {
         idToken: googleAuth.idToken,
       );
 
-      await _firebaseAuth.signInWithCredential(credential);
+      // Fazer login no Firebase
+      final UserCredential userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
+
+      // Obter o UID do usuário autenticado
+      final String uid = userCredential.user!.uid;
+
+      // Verificar e setar os dados de aceite de termos apenas na primeira vez
+      final aceitaTermosRef =
+          FirebaseFirestore.instance.collection(uid).doc('aceita_termos');
+      final aceitaTermosSnapshot = await aceitaTermosRef.get();
+
+      if (!aceitaTermosSnapshot.exists) {
+        await FirebaseFirestore.instance
+            .collection(uid)
+            .doc('dados_pessoais')
+            .set({
+          'nome': 'nome',
+          'sobrenome': 'sobrenome',
+          'celular': '(xx)xxxxx-xxxx',
+          'dataNascimento': 'xx/xx/xxxx',
+          'genero': '------',
+        });
+
+        await FirebaseFirestore.instance
+            .collection(uid)
+            .doc('dados_medicos')
+            .set({
+          'tipo': '------',
+          'terapia': '------',
+          'usaMedicamentos': '------',
+          'dataDiagnostico': 'xx/xx/xxxx',
+        });
+
+        await FirebaseFirestore.instance
+            .collection(uid)
+            .doc('aceita_termos')
+            .set({
+          'aceita': false,
+        });
+      }
+
       return null;
     } on FirebaseAuthException catch (e) {
       return "Erro de autenticação no Firebase: ${e.message}";
