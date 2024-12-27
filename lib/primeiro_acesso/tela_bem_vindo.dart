@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:main/firebase/firestore_service.dart';
+
 import 'package:main/primeiro_acesso/tela_dados.dart';
+
+import 'firebase/firestore_primeiro.dart';
 
 class TelaBemVindo extends StatefulWidget {
   const TelaBemVindo({super.key});

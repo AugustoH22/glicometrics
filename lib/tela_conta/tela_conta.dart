@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:main/autentificacao/auth_service.dart';
-import 'package:main/firebase/firestore_service.dart';
 import 'package:main/tela_conta/tela_meu_perfil.dart';
 import 'package:main/tela_conta/tela_termo.dart';
+
+import 'firebase/firestore_conta.dart';
 
 class ContaScreen extends StatefulWidget {
   const ContaScreen({super.key});

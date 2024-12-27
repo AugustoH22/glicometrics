@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:main/firebase/firestore_service.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
+
+import 'firebase/firestore_saude.dart';
 
 class AdicionarPressaoArterialScreen extends StatefulWidget {
   

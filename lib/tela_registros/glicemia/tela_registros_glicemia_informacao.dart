@@ -1,6 +1,6 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
-import 'package:main/firebase/firestore_service.dart';
+import 'firebase/firestore_glicemia.dart';
 
 class InformacaoScreen extends StatefulWidget {
   final DateTime? selectedDate;

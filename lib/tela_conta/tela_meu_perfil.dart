@@ -1,10 +1,11 @@
 // ignore_for_file: unnecessary_null_comparison
-
 import 'package:flutter/material.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
-import 'package:main/firebase/firestore_service.dart';
 import 'package:main/regua/simple_ruler_picker.dart';
 import 'package:main/regua/simple_ruler_picker_peso.dart';
+import 'firebase/firestore_conta.dart';
+
+
 
 class DadosPessoaisPage extends StatefulWidget {
   const DadosPessoaisPage({super.key});

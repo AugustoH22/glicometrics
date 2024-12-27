@@ -1,7 +1,5 @@
-
 import 'package:flutter/material.dart';
-import 'package:main/firebase/firestore_service.dart';
-
+import 'firebase/firestore_hipoflicemia.dart';
 
 class HipoglicemiaScreen extends StatelessWidget {
   const HipoglicemiaScreen({super.key});

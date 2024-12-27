@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:main/firebase/firestore_service.dart';
 import 'package:main/tela_home/widgets/grafico_pressao.dart';
 import 'package:main/tela_registros/saude/tela_adicionar_pressao.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
+import 'firebase/firestore_saude.dart';
 
 class PressaoArterialScreen extends StatefulWidget {
   const PressaoArterialScreen({super.key});

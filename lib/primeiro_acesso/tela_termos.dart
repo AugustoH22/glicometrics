@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:main/firebase/firestore_service.dart';
+
 import 'package:main/main.dart';
+
+import 'firebase/firestore_primeiro.dart';
 
 class TelaTermosPrivacidade extends StatelessWidget {
   final String nome;

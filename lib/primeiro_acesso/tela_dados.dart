@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
-import 'package:main/firebase/firestore_service.dart';
+
+import 'firebase/firestore_primeiro.dart';
 import 'tela_dados_medicos.dart';
 
 class TelaDadosPessoais extends StatefulWidget {

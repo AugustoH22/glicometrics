@@ -2,11 +2,13 @@
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:main/firebase/firestore_service.dart';
+
 import 'package:main/regua/simple_ruler_picker.dart';
 import 'package:main/tela_home/widgets/graficos_linha.dart';
 import 'package:main/tela_home/widgets/medicoes_widget.dart';
 import 'package:main/tela_home/widgets/refeicoes_widget.dart';
+
+import 'firebase/firestore_home.dart';
 
 
 class HomeScreen extends StatefulWidget {

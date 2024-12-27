@@ -16,6 +16,8 @@ import 'firebase/firebase_options.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/date_symbol_data_local.dart';
 
+Future<List<Map<String, dynamic>>> alimentos = [] as Future<List<Map<String, dynamic>>>;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -34,6 +36,7 @@ class GlicoMetricsApp extends StatelessWidget {
   Future<bool> _fetchAceitaTermos() async {
     final FirestoreService firebaseService = FirestoreService();
     var docAceitaTermos = await firebaseService.getAceitaTermos();
+    alimentos = (await firebaseService.alimentos()) as Future<List<Map<String, dynamic>>>;
     return docAceitaTermos?['aceita'] ?? false;
   }
 

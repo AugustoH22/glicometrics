@@ -160,6 +160,7 @@ class FirestoreService {
     required int diastolica,
     required DateTime data,
     required TimeOfDay hora,
+
   }) async {
     try {
       await _db
@@ -170,8 +171,7 @@ class FirestoreService {
         'sistolica': sistolica,
         'diastolica': diastolica,
         'data': data,
-        'hora':
-            '${hora.hour.toString().padLeft(2, '0')}:${hora.minute.toString().padLeft(2, '0')}',
+        'hora': '${hora.hour.toString().padLeft(2, '0')}:${hora.minute.toString().padLeft(2, '0')}',
       });
       if (kDebugMode) {
         print('Pressão arterial salva com sucesso!');
@@ -189,9 +189,13 @@ class FirestoreService {
     required String terapia,
     required String usaMedicamentos,
     required String dataDiagnostico,
+
   }) async {
     try {
-      await _db.collection(uid).doc('dados_medicos').update({
+      await _db
+          .collection(uid)
+          .doc('dados_medicos')
+          .update({
         'tipo': tipo,
         'terapia': terapia,
         'usaMedicamentos': usaMedicamentos,
@@ -213,9 +217,13 @@ class FirestoreService {
     required String celular,
     required String dataNascimento,
     required String genero,
+
   }) async {
     try {
-      await _db.collection(uid).doc('dados_pessoais').update({
+      await _db
+          .collection(uid)
+          .doc('dados_pessoais')
+          .update({
         'nome': nome,
         'sobrenome': sobrenome,
         'celular': celular,
@@ -235,8 +243,10 @@ class FirestoreService {
   // Função para buscar o último registro de pressão arterial
   Future<Map<String, dynamic>?> getDadosPessoais() async {
     try {
-      DocumentSnapshot<Map<String, dynamic>> querySnapshot =
-          await _db.collection(uid).doc('dados_pessoais').get();
+      DocumentSnapshot<Map<String, dynamic>> querySnapshot = await _db
+          .collection(uid)
+          .doc('dados_pessoais')
+          .get();
 
       return querySnapshot.data();
     } catch (e) {
@@ -250,8 +260,10 @@ class FirestoreService {
   // Função para buscar o último registro de pressão arterial
   Future<Map<String, dynamic>?> getDadosMedicos() async {
     try {
-      DocumentSnapshot<Map<String, dynamic>> querySnapshot =
-          await _db.collection(uid).doc('dados_medicos').get();
+      DocumentSnapshot<Map<String, dynamic>> querySnapshot = await _db
+          .collection(uid)
+          .doc('dados_medicos')
+          .get();
 
       if (querySnapshot.exists) {
         return querySnapshot.data() as Map<String, dynamic>;
@@ -266,9 +278,12 @@ class FirestoreService {
 
   Future<Map<String, dynamic>?> setAceitaTermos(bool aceita) async {
     try {
-      await _db.collection(uid).doc('aceita_termos').update({
-        'aceita': aceita,
-      });
+      await _db
+          .collection(uid)
+          .doc('aceita_termos')
+          .update({
+             'aceita': aceita,
+          });
     } catch (e) {
       if (kDebugMode) {
         print("Erro ao salvar: $e");
@@ -277,22 +292,25 @@ class FirestoreService {
     return null;
   }
 
+
   Future<Map<String, dynamic>?> getAceitaTermos() async {
     try {
-      DocumentSnapshot<Map<String, dynamic>> querySnapshot =
-          await _db.collection(uid).doc('aceita_termos').get();
+      DocumentSnapshot<Map<String, dynamic>> querySnapshot = await _db
+          .collection(uid)
+          .doc('aceita_termos')
+          .get();
 
       if (querySnapshot.exists) {
-        final data = querySnapshot.data();
-        if (kDebugMode) {
-          print("Dados do Firestore: $data");
-        } // Log dos dados
-        return data;
-      } else {
-        if (kDebugMode) {
-          print("Documento 'aceita_termos' não encontrado para UID: $uid");
-        }
+      final data = querySnapshot.data();
+      if (kDebugMode) {
+        print("Dados do Firestore: $data");
+      } // Log dos dados
+      return data;
+    } else {
+      if (kDebugMode) {
+        print("Documento 'aceita_termos' não encontrado para UID: $uid");
       }
+    }
     } catch (e) {
       if (kDebugMode) {
         print("Erro ao buscar último registro de pressão: $e");
@@ -499,11 +517,7 @@ class FirestoreService {
           .add(refeicaoData);
 
       if (refeicaoData['glicemiaValue'] != "") {
-        await _db
-            .collection(uid)
-            .doc('glicemia')
-            .collection('c_glicemias')
-            .add({
+        await _db.collection(uid).doc('glicemia').collection('c_glicemias').add({
           'data': refeicaoData['selectedDate'],
           'hora': refeicaoData['selectedTime'],
           'timestamp': refeicaoData['selectedDate'],
@@ -790,20 +804,6 @@ class FirestoreService {
     } catch (e) {
       if (kDebugMode) {
         print("Erro ao buscar refeições do dia: $e");
-      }
-      return [];
-    }
-  }
-
-  Future<List<Map<String, dynamic>>> alimentos() async {
-    try {
-      QuerySnapshot snapshot = await _db.collection('alimentos').get();
-      return snapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
-          .toList();
-    } catch (error) {
-      if (kDebugMode) {
-        print('Erro ao buscar alimentos: $error');
       }
       return [];
     }

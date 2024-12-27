@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:main/firebase/firestore_service.dart';
+import 'package:main/main.dart';
 import 'package:main/tela_registros/refeicao/tela_registros_refeicao_revisa_alimentos.dart';
+import 'firebase/firestore_refeicao.dart';
 
 class BuscaAlimentoScreen extends StatefulWidget {
   final String? selectedOption;
@@ -87,6 +88,30 @@ class _BuscaAlimentoScreenState extends State<BuscaAlimentoScreen> {
       searchResults = results;
       isLoading = false;
     });
+  }
+
+  Future<List<Map<String, dynamic>>> searchAlimentos(String query) async {
+    try {
+      List<Map<String, dynamic>> resultadosExatos = [];
+      List<Map<String, dynamic>> resultadosParciais = [];
+
+      List<Map<String, dynamic>> alimentosList = await alimentos;
+      for (var doc in alimentosList) {
+        String nomeAlimento = doc['nome'].toLowerCase();
+
+        if (nomeAlimento == query.toLowerCase()) {
+          resultadosExatos.add(doc);
+        } else if (query
+            .split(' ')
+            .every((palavra) => nomeAlimento.contains(palavra))) {
+          resultadosParciais.add(doc);
+        }
+      }
+
+      return resultadosExatos + resultadosParciais;
+    } catch (error) {
+      return [];
+    }
   }
 
   void _addFoodToSelection(

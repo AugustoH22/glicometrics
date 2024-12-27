@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:main/firebase/firestore_service.dart';
 import 'package:main/regua/simple_ruler_picker.dart';
 import 'package:main/regua/simple_ruler_picker_peso.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 import 'package:main/tela_home/widgets/grafico_peso.dart';
+import 'firebase/firestore_saude.dart';
 
 class PesoScreen extends StatefulWidget {
   const PesoScreen({super.key});
