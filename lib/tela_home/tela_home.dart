@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double menorPeso = 0;
   int altura = 0;
   double imc = 0;
-  
+
   bool isCm = true; // Unidade atual
 
   @override
@@ -95,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
               logoSize = 150; // Limita o tamanho máximo da logo
             }
             return Image.asset(
-              'lib/img/receitas_logo.png',
+              'lib/img/glicometrics_name.png',
               height: logoSize,
               width: logoSize,
               fit: BoxFit.contain,
@@ -105,61 +105,61 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
-                    Row(              
-                      children: [
-                        const SizedBox(width: 15),
-                        Icon(Icons.medical_information_rounded),
-                        const SizedBox(width: 5),
-                        Text(
-                          ' Minhas Medições',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      ],
-                    ),
-                    GraficosLinha(
-                        nutrientesPorDia: _nutricaoDoDia,
-                        glicemiaSpots: glicemiaSpots),
-                    MedicoesWidget(
-                      pesoAtual: pesoAtual,
-                      maiorPeso: maiorPeso,
-                      menorPeso: menorPeso,
-                      imc: imc,
-                      altura: altura,
-                      alterarAltura: _alterarAltura,
-                      ultimaPressao: _ultimaPressao,
-                      ultimasPressao: _ultimasPressao,
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        const SizedBox(width: 15),
-                        Icon(Icons.fastfood),
-                        const SizedBox(width: 5),
-                        Text(
-                          ' Minhas Refeições',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    RefeicoesWidget(refeicoesDoDia: _refeicoesDoDia),
-                  ],
-                ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const SizedBox(width: 15),
+                  Icon(Icons.medical_information_rounded),
+                  const SizedBox(width: 5),
+                  Text(
+                    ' Minhas Medições',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ],
               ),
-            ),
+              GraficosLinha(
+                  nutrientesPorDia: _nutricaoDoDia,
+                  glicemiaSpots: glicemiaSpots),
+              MedicoesWidget(
+                pesoAtual: pesoAtual,
+                maiorPeso: maiorPeso,
+                menorPeso: menorPeso,
+                imc: imc,
+                altura: altura,
+                alterarAltura: _alterarAltura,
+                ultimaPressao: _ultimaPressao,
+                ultimasPressao: _ultimasPressao,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  const SizedBox(width: 15),
+                  Icon(Icons.fastfood),
+                  const SizedBox(width: 5),
+                  Text(
+                    ' Minhas Refeições',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              RefeicoesWidget(refeicoesDoDia: _refeicoesDoDia),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
   // Função para alterar a altura e recalcular o IMC
   void _alterarAltura() {
     int aux3 = altura;
-    if(aux3 == 0){
+    if (aux3 == 0) {
       aux3 = 170;
     }
     showModalBottomSheet(
@@ -207,8 +207,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     lineStroke: 2, // Largura das linhas
                     height: 150, // Altura total da régua
                   ),
-                  
-                  
                   const SizedBox(height: 50),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -224,8 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(width: 30),
                       ElevatedButton(
-                        onPressed: () async{
-
+                        onPressed: () async {
                           await firebaseService.salvarAltura(
                             altura: altura,
                           );
@@ -237,7 +234,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                         ),
-                        child: const Text("SALVAR", style: TextStyle(color: Colors.white),),
+                        child: const Text(
+                          "SALVAR",
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                       const SizedBox(width: 30),
                     ],
